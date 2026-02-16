@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSentinel | Vulnerability Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+
+    <header class="mb-12 text-center">
+        <h1 class="text-5xl font-black tracking-tighter bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+            CYBER<span class="text-white">SENTINEL</span>
+        </h1>
+        <p class="text-gray-400 mt-2 italic text-lg">Analysez l'invisible. Sécurisez l'essentiel.</p>
+    </header>
+
+    <div class="w-full max-w-4xl glass-card rounded-2xl p-8 shadow-2xl">
+        <div class="flex flex-col md:flex-row gap-4">
+            <input type="text" id="urlInput" placeholder="Entrez l'URL (ex: https://monsite.com)" 
+                class="flex-[2] bg-black/50 border border-gray-700 rounded-lg px-4 py-4 focus:outline-none focus:border-blue-500 transition text-white">
+            
+            <select id="scanMode" class="flex-1 bg-black/50 border border-gray-700 rounded-lg px-4 py-4 focus:outline-none focus:border-blue-500 transition text-white cursor-pointer">
+                <option value="normal">Scan Normal</option>
+                <option value="advanced">Scan Avancé</option>
+            </select>
+
+            <button onclick="startScan()" class="glow-button bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-lg flex items-center justify-center gap-2">
+                <i class="fas fa-shield-virus"></i> SCANNER
+            </button>
+        </div>
+
+        <div id="scanStatus" class="hidden mt-8 space-y-4">
+            <div class="flex justify-between text-sm mb-1">
+                <span id="statusLabel" class="text-blue-400 animate-pulse">Initialisation de l'audit...</span>
+                <span id="percent" class="font-mono text-blue-400">0%</span>
+            </div>
+            <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                <div id="progressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.8)]" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="results" class="hidden w-full max-w-4xl mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-card p-6 rounded-xl border-l-4 border-red-500">
+            <h3 class="text-red-500 font-bold uppercase text-xs tracking-widest">Critique</h3>
+            <p id="critCount" class="text-3xl font-bold mt-2 text-white">--</p>
+        </div>
+        <div class="glass-card p-6 rounded-xl border-l-4 border-yellow-500">
+            <h3 class="text-yellow-500 font-bold uppercase text-xs tracking-widest">Moyen</h3>
+            <p id="medCount" class="text-3xl font-bold mt-2 text-white">--</p>
+        </div>
+        <div class="glass-card p-6 rounded-xl border-l-4 border-green-500">
+            <h3 class="text-green-500 font-bold uppercase text-xs tracking-widest">Safe</h3>
+            <p id="safeCount" class="text-3xl font-bold mt-2 text-white">--</p>
+        </div>
+    </div>
+
+    <script>
+        function startScan() {
+            const url = document.getElementById('urlInput').value;
+            const mode = document.getElementById('scanMode').value;
+            
+            if(!url) return alert("Veuillez entrer une URL");
+
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('scanStatus').classList.remove('hidden');
+            
+            let progress = 0;
+            const bar = document.getElementById('progressBar');
+            const label = document.getElementById('statusLabel');
+            const percentText = document.getElementById('percent');
+
+            const speed = mode === 'advanced' ? 3 : 8;
+            const stepLabels = mode === 'advanced' 
+                ? ["Analyse profonde des ports...", "Test Brute-force répertoires...", "Vérification SSL/TLS étendue...", "Recherche XSS & Fuzzing...", "Génération rapport d'expert..."]
+                : ["Scan rapide des ports...", "Vérification headers...", "Finalisation..."];
+
+            const interval = setInterval(() => {
+                progress += Math.random() * speed;
+                if(progress > 100) progress = 100;
+                
+                bar.style.width = progress + '%';
+                percentText.innerText = Math.round(progress) + '%';
+
+                if(mode === 'advanced') {
+                    if(progress > 20) label.innerText = stepLabels[0];
+                    if(progress > 40) label.innerText = stepLabels[1];
+                    if(progress > 60) label.innerText = stepLabels[2];
+                    if(progress > 80) label.innerText = stepLabels[3];
+                    if(progress > 95) label.innerText = stepLabels[4];
+                } else {
+                    if(progress > 30) label.innerText = stepLabels[0];
+                    if(progress > 70) label.innerText = stepLabels[1];
+                    if(progress > 90) label.innerText = stepLabels[2];
+                }
+
+                if(progress === 100) {
+                    clearInterval(interval);
+                    showResults(mode);
+                    label.innerText = "Analyse terminée.";
+                }
+            }, 200);
+        }
+
+        function showResults(mode) {
+            document.getElementById('results').classList.remove('hidden');
+            if(mode === 'advanced') {
+                document.getElementById('critCount').innerText = "12";
+                document.getElementById('medCount').innerText = "24";
+                document.getElementById('safeCount').innerText = "105";
+            } else {
+                document.getElementById('critCount').innerText = "2";
+                document.getElementById('medCount').innerText = "5";
+                document.getElementById('safeCount').innerText = "42";
+            }
+        }
+    </script>
+</body>
+</html>
