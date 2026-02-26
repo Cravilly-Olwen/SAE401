@@ -1,6 +1,6 @@
 # 🎯 Dummy Site (Environnement de Test Contrôlé)
 
-Afin de respecter le cadre légal des tests d'intrusion (loi Godfrain) et l'exigence de bienveillance ("White Hat") de ce projet, ce dossier contient notre propre site cible intentionnellement vulnérable.
+Afin de respecter le cadre légal des tests d'intrusion (loi Godfrain) et l'exigence de bienveillance ("White Hat") de ce projet, ce dossier contient notre propre site cible intentionnellement vulnérable (notre véhicule de "crash test").
 
 ## ⚠️ Avertissement de Sécurité
 **CE SITE NE DOIT JAMAIS ÊTRE DÉPLOYÉ SUR UN RÉSEAU PUBLIC.** Il est conçu pour tourner exclusivement en local (`127.0.0.1`) ou dans un conteneur Docker isolé.
