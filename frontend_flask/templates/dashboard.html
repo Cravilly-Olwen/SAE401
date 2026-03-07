@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberSentinel | Le Tirage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body class="antialiased">
+
+    <section class="h-screen flex flex-col items-center justify-center text-center relative z-10 pt-20">
+        <h1 class="text-6xl md:text-8xl font-instrument font-black tracking-tighter text-white drop-shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+            VOTRE <span class="text-blue-500">TIRAGE</span>
+        </h1>
+        <p class="text-gray-300 mt-6 italic text-2xl font-light">L'audit est terminé. Découvrons votre main...</p>
+        <p class="text-blue-400 mt-12 text-sm animate-bounce tracking-widest uppercase font-bold">↓ Scrollez pour dévoiler ↓</p>
+    </section>
+
+    <section class="intro-cards-section">
+        <div class="intro-card" id="intro-card-1">
+            <div class="intro-card-wrapper">
+                <div class="intro-flip-card-inner">
+                    <div class="intro-face intro-dos">
+                        <img src="{{ url_for('static', filename='assets/card-front.png') }}" class="w-full h-full object-cover border-4 border-blue-500/30 rounded-[0.8em]">
+                    </div>
+                    <div class="intro-face intro-avant rounded-[0.8em] overflow-hidden">
+                        <img src="{{ url_for('static', filename='assets/as_de_pique.png') }}" onerror="this.style.display='none'" class="absolute inset-0 w-full h-full opacity-90">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent border-4 border-red-600/50 flex flex-col justify-end items-center text-center p-4 pb-6">
+                            <i class="fas fa-skull text-5xl text-red-500 mb-2 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"></i>
+                            <h2 class="text-2xl font-instrument text-white">Famille Pique</h2>
+                            <p class="text-gray-300 text-sm mt-2 italic">Fuites de données et vulnérabilités critiques.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="intro-card" id="intro-card-2">
+            <div class="intro-card-wrapper">
+                <div class="intro-flip-card-inner">
+                    <div class="intro-face intro-dos">
+                        <img src="{{ url_for('static', filename='assets/card-front.png') }}" class="w-full h-full object-cover border-4 border-blue-500/30 rounded-[0.8em]">
+                    </div>
+                    <div class="intro-face intro-avant rounded-[0.8em] overflow-hidden">
+                        <img src="{{ url_for('static', filename='assets/as_de_trefle.png') }}" onerror="this.style.display='none'" class="absolute inset-0 w-full h-full opacity-90">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent border-4 border-blue-400/50 flex flex-col justify-end items-center text-center p-4 pb-6">
+                            <i class="fas fa-door-open text-5xl text-blue-400 mb-2 drop-shadow-[0_0_15px_rgba(96,165,250,0.8)]"></i>
+                            <h2 class="text-2xl font-instrument text-white">Famille Trèfle</h2>
+                            <p class="text-gray-300 text-sm mt-2 italic">Portes d'accès ouvertes et réseaux exposés.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="intro-card" id="intro-card-3">
+            <div class="intro-card-wrapper">
+                <div class="intro-flip-card-inner">
+                    <div class="intro-face intro-dos">
+                        <img src="{{ url_for('static', filename='assets/card-front.png') }}" class="w-full h-full object-cover border-4 border-blue-500/30 rounded-[0.8em]">
+                    </div>
+                    <div class="intro-face intro-avant rounded-[0.8em] overflow-hidden">
+                        <img src="{{ url_for('static', filename='assets/roi_de_carreau.png') }}" onerror="this.style.display='none'" class="absolute inset-0 w-full h-full opacity-90">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent border-4 border-orange-400/50 flex flex-col justify-end items-center text-center p-4 pb-6">
+                            <i class="fas fa-server text-5xl text-orange-400 mb-2 drop-shadow-[0_0_15px_rgba(251,146,60,0.8)]"></i>
+                            <h2 class="text-2xl font-instrument text-white">Famille Carreau</h2>
+                            <p class="text-gray-300 text-sm mt-2 italic">Défauts de configuration des serveurs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="intro-card" id="intro-card-4">
+            <div class="intro-card-wrapper">
+                <div class="intro-flip-card-inner">
+                    <div class="intro-face intro-dos">
+                        <img src="{{ url_for('static', filename='assets/card-front.png') }}" class="w-full h-full object-cover border-4 border-blue-500/30 rounded-[0.8em]">
+                    </div>
+                    <div class="intro-face intro-avant rounded-[0.8em] overflow-hidden">
+                        <img src="{{ url_for('static', filename='assets/8_de_coeur.png') }}" onerror="this.style.display='none'" class="absolute inset-0 w-full h-full opacity-90">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent border-4 border-green-400/50 flex flex-col justify-end items-center text-center p-4 pb-6">
+                            <i class="fas fa-globe text-5xl text-green-400 mb-2 drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]"></i>
+                            <h2 class="text-2xl font-instrument text-white">Famille Cœur</h2>
+                            <p class="text-gray-300 text-sm mt-2 italic">Hygiène Web et fuites d'informations mineures.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="w-full relative z-20 py-20 bg-gradient-to-b from-transparent to-[#020617]">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-instrument text-white">Détail de votre main</h2>
+            <p class="text-gray-400 mt-2">Survolez les cartes pour découvrir les vulnérabilités trouvées.</p>
+        </div>
+
+        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 px-8 pb-32">
+            
+            {% set famille_mapping = {'FFUF': 'pique', 'OWASP ZAP': 'pique', 'Nmap': 'trefle', 'Nikto': 'carreau', 'TestSSL': 'carreau', 'Dig': 'coeur'} %}
+            {% set valeur_mapping = {'Critique': 'as', 'Majeur': 'roi', 'Important': 'valet', 'Mineur': '8'} %}
+
+            {% for gravite, failles in report.scoring_anssi.items() %}
+                {% for faille in failles %}
+                    {% set famille = famille_mapping.get(faille.outil, 'coeur') %}
+                    {% set valeur = valeur_mapping.get(gravite, '8') %}
+                    {% set image_carte = 'assets/' ~ valeur ~ '_de_' ~ famille ~ '.png' %}
+
+                    <div class="grid-carte-container">
+                        <div class="grid-carte-inner">
+                            <div class="grid-face grid-dos">
+                                <img src="{{ url_for('static', filename='assets/card-front.png') }}" class="w-full h-full object-cover border-4 border-blue-500/30 rounded-[0.8em]">
+                            </div>
+
+                            <div class="grid-face grid-avant rounded-[0.8em] overflow-hidden bg-black">
+                                <img src="{{ url_for('static', filename=image_carte) }}" onerror="this.src='{{ url_for('static', filename='assets/card-front.png') }}'" class="absolute inset-0 w-full h-full opacity-[0.85]">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/95 to-black/10 px-3 pb-3 pt-12 flex flex-col items-center text-center border-4 border-blue-900/50 rounded-[0.8em] overflow-y-auto carte-scroll">
+                                    <div class="mt-auto"></div>
+                                    <span class="px-2 py-1 text-[9px] font-black rounded border border-blue-500/50 text-blue-300 mt-2 mb-3 tracking-widest bg-black/60 shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                                        CARTE {{ faille.outil|upper }}
+                                    </span>
+                                    <h2 class="text-white font-bold text-lg leading-tight mb-4 font-instrument drop-shadow-md">{{ faille.titre }}</h2>
+                                    <div class="w-full bg-[#0a192f]/80 backdrop-blur-md border border-blue-500/30 rounded p-3 text-left mb-4 shadow-lg">
+                                        <p class="text-blue-300 text-[10px] font-bold uppercase mb-1"><i class="fas fa-eye"></i> Décryptage :</p>
+                                        <p class="text-gray-100 text-xs italic leading-snug drop-shadow-sm">
+                                            {% if faille.outil == 'Nmap' %}
+                                                Une porte de votre système est déverrouillée. Un intrus pourrait y tester des clés.
+                                            {% elif faille.outil == 'FFUF' %}
+                                                ALERTE : Les documents secrets de votre coffre-fort sont abandonnés sur la voie publique !
+                                            {% elif faille.outil == 'TestSSL' %}
+                                                Le badge de sécurité de votre site est invalide. Vos visiteurs ne sont pas protégés.
+                                            {% elif faille.outil == 'Nikto' and 'config' in faille.titre|lower %}
+                                                Vos plans de construction sont exposés. C'est une mine d'or pour un pirate.
+                                            {% elif faille.outil == 'Nikto' %}
+                                                Il manque des boucliers de base sur la devanture de votre site web.
+                                            {% elif faille.outil == 'Dig' %}
+                                                L'adresse technique de votre serveur est répertoriée dans l'annuaire public.
+                                            {% else %}
+                                                Une anomalie a été repérée dans les rouages de votre système.
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="w-full pt-2 border-t border-gray-500 text-left bg-black/40 p-2 rounded">
+                                        <p class="text-emerald-400 text-[10px] font-bold uppercase mb-1"><i class="fas fa-shield-alt"></i> Action :</p>
+                                        <p class="text-white text-xs font-medium" title="{{ faille.solution }}">{{ faille.solution }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="roulette-section" class="w-full relative z-20 py-24 bg-gradient-to-b from-[#020617] to-[#0a192f] border-t border-blue-500/20 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-16">
+            <div class="w-full md:w-1/2">
+                <h2 class="text-5xl md:text-6xl font-instrument text-white drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">LA ROULETTE DU RISQUE</h2>
+                <p class="text-gray-400 mt-4 text-lg italic">Faites vos jeux. Voici comment se répartissent les risques sur votre tapis vert.</p>
+                
+                {% set nb_crit = report.scoring_anssi.get('Critique', [])|length %}
+                {% set nb_maj = report.scoring_anssi.get('Majeur', [])|length %}
+                {% set nb_imp = report.scoring_anssi.get('Important', [])|length %}
+                {% set nb_min = report.scoring_anssi.get('Mineur', [])|length %}
+                {% set total = nb_crit + nb_maj + nb_imp + nb_min %}
+                
+                <div id="roulette-data" data-crit="{{ nb_crit }}" data-maj="{{ nb_maj }}" data-imp="{{ nb_imp }}" data-min="{{ nb_min }}" data-total="{{ total }}" class="hidden"></div>
+
+                <div class="mt-10 space-y-4">
+                    <div class="flex items-center justify-between bg-red-900/20 border border-red-600/30 p-4 rounded-xl shadow-[inset_0_0_15px_rgba(220,38,38,0.1)]">
+                        <div>
+                            <p class="text-red-500 font-bold uppercase tracking-widest text-sm"><i class="fas fa-skull-crossbones"></i> Banqueroute</p>
+                            <p class="text-gray-400 text-xs mt-1">Failles fatales. Un pirate peut rafler la mise immédiatement.</p>
+                        </div>
+                        <span class="text-4xl font-instrument text-red-500 drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]">{{ nb_crit }}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-orange-900/20 border border-orange-500/30 p-4 rounded-xl shadow-[inset_0_0_15px_rgba(249,115,22,0.1)]">
+                        <div>
+                            <p class="text-orange-500 font-bold uppercase tracking-widest text-sm"><i class="fas fa-dice-d20"></i> Pari Risqué</p>
+                            <p class="text-gray-400 text-xs mt-1">Dangers sérieux. Vos défenses menacent de craquer.</p>
+                        </div>
+                        <span class="text-4xl font-instrument text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">{{ nb_maj }}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-blue-900/20 border border-blue-500/30 p-4 rounded-xl shadow-[inset_0_0_15px_rgba(59,130,246,0.1)]">
+                        <div>
+                            <p class="text-blue-400 font-bold uppercase tracking-widest text-sm"><i class="fas fa-mask"></i> Coup de Bluff</p>
+                            <p class="text-gray-400 text-xs mt-1">Votre système montre des faiblesses visibles de l'extérieur.</p>
+                        </div>
+                        <span class="text-4xl font-instrument text-blue-400 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]">{{ nb_imp }}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-emerald-900/20 border border-emerald-500/30 p-4 rounded-xl shadow-[inset_0_0_15px_rgba(16,185,129,0.1)]">
+                        <div>
+                            <p class="text-emerald-400 font-bold uppercase tracking-widest text-sm"><i class="fas fa-coins"></i> Petite Fuite</p>
+                            <p class="text-gray-400 text-xs mt-1">Quelques jetons perdus. Petits réglages d'hygiène à faire.</p>
+                        </div>
+                        <span class="text-4xl font-instrument text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]">{{ nb_min }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/2 flex justify-center relative py-12">
+                <div class="relative w-[320px] h-[320px] md:w-[450px] md:h-[450px] rounded-full border-[15px] border-[#060d1f] shadow-[0_0_50px_rgba(0,0,0,0.8),inset_0_0_30px_rgba(0,0,0,1)] flex justify-center items-center">
+                    <div id="roulette-wheel" class="w-full h-full rounded-full opacity-90 shadow-[inset_0_0_20px_rgba(0,0,0,0.9)]"></div>
+                    <div class="absolute w-12 h-12 bg-gradient-to-br from-gray-300 to-gray-600 rounded-full border-4 border-gray-800 shadow-[0_5px_15px_rgba(0,0,0,0.8)] z-10 flex items-center justify-center">
+                        <div class="w-3 h-3 bg-black rounded-full"></div>
+                    </div>
+                    <div id="roulette-ball-container" class="absolute inset-0 z-20 pointer-events-none">
+                        <div class="absolute top-[8%] left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.9)]"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="fixed bottom-0 left-0 w-full bg-[#0a192f]/90 backdrop-blur-md border-t border-blue-500/20 p-4 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p class="text-blue-400 text-sm font-instrument italic">CyberSentinel - L'analyse de l'invisible.</p>
+            <div class="flex gap-4">
+                <a href="/" class="bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition text-sm font-bold shadow-lg">NOUVEAU TIRAGE</a>
+                <a href="/api/download-pdf" target="_blank" class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-500 transition text-sm font-bold shadow-[0_0_15px_rgba(59,130,246,0.5)]"><i class="fas fa-file-pdf"></i> TÉLÉCHARGER LE DOSSIER</a>
+                
+                <button onclick="toggleEmailForm()" class="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-500 transition text-sm font-bold shadow-[0_0_15px_rgba(147,51,234,0.5)]">
+                    <i class="fas fa-envelope"></i> RECEVOIR PAR MAIL
+                </button>
+
+                <div id="email-form-container" class="hidden absolute bottom-20 right-4 bg-[#0a192f] p-4 border border-purple-500/50 rounded-lg shadow-2xl transition-all">
+                    <p class="text-xs text-purple-300 mb-2 font-bold uppercase tracking-widest"><i class="fas fa-at"></i> Adresse de destination :</p>
+                    <div class="flex gap-2">
+                        <input type="email" id="email-input" placeholder="client@entreprise.com" class="bg-black/50 border border-gray-600 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500 w-48">
+                        <button onclick="sendEmail()" id="send-mail-btn" class="bg-purple-600 px-4 py-2 rounded text-white text-sm font-bold hover:bg-purple-500 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <p id="email-status" class="text-xs font-bold mt-2 hidden"></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+    
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

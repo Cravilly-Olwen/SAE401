@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberSentinel | Vulnerability Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+
+    <header class="mb-16 text-center mt-12">
+        <h1 class="text-7xl md:text-8xl font-instrument font-black tracking-tighter bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
+            CYBER<span class="text-white">SENTINEL</span>
+        </h1>
+        <p class="text-gray-400 mt-6 italic text-xl md:text-2xl font-light tracking-wide">Analysez l'invisible. Sécurisez l'essentiel.</p>
+    </header>
+
+    <div class="w-full max-w-3xl glass-card rounded-[2rem] p-8 md:p-12 shadow-[0_8px_32px_rgba(0,0,0,0.3)] relative overflow-hidden">
+        
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-600 rounded-full mix-blend-screen filter blur-[80px] opacity-30"></div>
+        <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-[80px] opacity-20"></div>
+
+        <div class="relative z-10 flex flex-col gap-6">
+            
+            <div class="flex flex-col gap-2">
+                <label for="urlInput" class="text-xs font-bold text-blue-300 tracking-widest uppercase ml-2 opacity-80">1. Cible de l'audit</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <i class="fas fa-globe text-blue-400 group-focus-within:text-blue-300 transition-colors"></i>
+                    </div>
+                    <input type="text" id="urlInput" placeholder="https://votre-domaine.com" 
+                        class="w-full bg-black/40 border border-gray-700/50 rounded-xl py-4 pl-14 pr-6 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-light tracking-wide shadow-inner">
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-2">
+                <label for="scanMode" class="text-xs font-bold text-blue-300 tracking-widest uppercase ml-2 opacity-80">2. Profondeur d'analyse</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <i class="fas fa-sliders-h text-blue-400 group-focus-within:text-blue-300 transition-colors"></i>
+                    </div>
+                    <select id="scanMode" class="w-full bg-black/40 border border-gray-700/50 rounded-xl py-4 pl-14 pr-10 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-light cursor-pointer appearance-none shadow-inner">
+                        <option value="simple" class="bg-gray-900 text-white">Mode Simple (Recherche des failles courantes)</option>
+                        <option value="avance" class="bg-gray-900 text-white">Mode Avancé (Recherche approfondie de vulnérabilités)</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+                        <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-center">
+                <button onclick="startScan()" id="scanBtn" class="w-full sm:w-auto min-w-[280px] glow-button bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-3 text-sm uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                    <i class="fas fa-shield-alt text-lg"></i> LANCER L'ANALYSE
+                </button>
+            </div>
+        </div>
+
+        <div id="scanStatus" class="hidden relative z-10 mt-10 border-t border-gray-700/50 pt-8">
+            <div class="flex justify-between items-end mb-3">
+                <div>
+                    <h3 class="text-white font-medium text-lg">Analyse en cours</h3>
+                    <span id="statusLabel" class="text-blue-400 text-sm animate-pulse">Initialisation...</span>
+                </div>
+                <span id="progressPercent" class="text-3xl font-light text-white font-instrument">0%</span>
+            </div>
+            <div class="w-full bg-gray-900 rounded-full h-3 overflow-hidden border border-gray-800 shadow-inner">
+                <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-purple-500 h-3 rounded-full transition-all duration-500 shadow-[0_0_15px_rgba(59,130,246,0.8)] relative" style="width: 0%">
+                    <div class="absolute top-0 right-0 bottom-0 left-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgNDBsNDAtNDBIMzBMMCAzMHptNDAgMEwwIDBoMTBMMDAgMzB6IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9Ii4xIi8+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjYSkiLz48L3N2Zz4=')] opacity-30 animate-[slide_1s_linear_infinite]"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>

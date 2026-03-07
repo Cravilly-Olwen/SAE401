@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport d'Audit Complet - CyberSentinel</title>
+    <style>
+        /* Styles d'impression professionnels */
+        @page {
+            size: A4;
+            margin: 20mm;
+            @bottom-right { content: "Page " counter(page) " sur " counter(pages); font-family: sans-serif; font-size: 10px; color: #64748b; }
+            @bottom-left { content: "CyberSentinel - Confidentiel"; font-family: sans-serif; font-size: 10px; color: #64748b; }
+        }
+        
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6; margin: 0; padding: 0; }
+        .page-break { page-break-before: always; }
+        
+        /* COUVERTURE */
+        .cover { text-align: center; margin-top: 25vh; }
+        .cover h1 { font-size: 54px; color: #0f172a; margin-bottom: 0; letter-spacing: 2px; text-transform: uppercase; }
+        .cover h1 span { color: #3b82f6; }
+        .cover h2 { font-size: 22px; color: #64748b; font-weight: 300; margin-top: 10px; letter-spacing: 1px; }
+        .cover-box { margin-top: 80px; padding: 30px; border: 2px solid #e2e8f0; border-radius: 10px; display: inline-block; text-align: left; background-color: #f8fafc; width: 60%; }
+        .cover-box p { margin: 10px 0; font-size: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        
+        /* TITRES */
+        h2.section-title { color: #0f172a; border-bottom: 3px solid #3b82f6; padding-bottom: 8px; margin-top: 0; padding-top: 30px; font-size: 24px; text-transform: uppercase; }
+        
+        /* GRAPHIQUES */
+        .charts-container { text-align: center; margin-top: 30px; }
+        .chart-box { margin-bottom: 40px; padding: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .chart-box h3 { color: #334155; margin-top: 0; text-align: left; font-size: 16px; }
+        .chart-box img { max-width: 100%; height: auto; max-height: 350px; }
+        
+        /* TABLEAU RÉSUMÉ */
+        .summary-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        .summary-table th, .summary-table td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; }
+        .summary-table th { background-color: #f1f5f9; color: #0f172a; }
+        
+        /* BADGES */
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; color: white; font-size: 11px; text-transform: uppercase; display: inline-block; }
+        .bg-red { background-color: #ef4444; } .bg-orange { background-color: #f97316; } .bg-blue { background-color: #3b82f6; } .bg-green { background-color: #10b981; }
+
+        /* FAILLES DÉTAILLÉES */
+        .vuln-block { background-color: #fff; border: 1px solid #e2e8f0; border-left-width: 6px; padding: 20px; margin-bottom: 25px; border-radius: 4px; page-break-inside: avoid; }
+        .vuln-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 10px; }
+        .vuln-title { font-size: 18px; font-weight: bold; margin: 0; color: #0f172a; }
+        .vuln-tool { font-size: 12px; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 10px; }
+        .vuln-section { margin-top: 15px; }
+        .vuln-section strong { display: block; font-size: 13px; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .vuln-section p { margin: 0; font-size: 14px; color: #334155; }
+        .tech-log { font-family: "Courier New", Courier, monospace; background-color: #1e293b; color: #e2e8f0; padding: 10px; font-size: 12px; border-radius: 4px; overflow-wrap: break-word; }
+    </style>
+</head>
+<body>
+
+    <div class="cover">
+        <h1>CYBER<span>SENTINEL</span></h1>
+        <h2>Rapport d'Audit Technique & Analyse des Risques</h2>
+        
+        <div class="cover-box">
+            <p><strong>Cible Auditée :</strong> {{ report.metadata.cible }}</p>
+            <p><strong>Type d'audit :</strong> {{ report.metadata.statut }}</p>
+            <p><strong>Total des vulnérabilités :</strong> {{ report.metadata.total_vulns }}</p>
+            <p><strong>Date de l'audit :</strong> Généré automatiquement à l'instant.</p>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2 class="section-title">1. Bilan Statistique</h2>
+    <div style="text-align: center; margin-top: 20px; margin-bottom: 30px; padding: 25px; border: 4px solid {{ evaluation.color }}; border-radius: 15px; background-color: #f8fafc;">
+        <h3 style="margin: 0; color: #546379; text-transform: uppercase; font-size: 14px; letter-spacing: 2px;">Note de Sécurité Globale</h3>
+        <div style="font-size: 90px; font-weight: 900; color: {{ evaluation.color }}; line-height: 1.1;">{{ evaluation.grade }}</div>
+        <p style="font-size: 20px; font-weight: bold; color: #1e293b; margin: 10px 0 0 0;">{{ evaluation.message }}</p>
+        <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px; font-style: italic;">Score de robustesse : {{ evaluation.score }} / 100</p>
+    </div>
+    <p>Ce tableau de bord offre une vue macroscopique de la posture de sécurité de la cible auditée. Il permet d'identifier rapidement les familles de failles les plus critiques ainsi que les vecteurs d'attaque potentiels.</p>
+
+    <div class="charts-container">
+        <div class="chart-box">
+            <h3>Répartition des niveaux de risques (La Roulette)</h3>
+            <img src="{{ pie_chart_url }}" alt="Graphique des risques">
+        </div>
+
+        <div class="chart-box">
+            <h3>Vulnérabilités par vecteurs d'analyse (Outils)</h3>
+            <img src="{{ bar_chart_url }}" alt="Graphique des outils">
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2 class="section-title">2. Résumé Exécutif</h2>
+    <p>Ce résumé traduit les constats techniques en impacts métiers concrets (référentiel vulgarisé).</p>
+
+    <table class="summary-table">
+        <thead>
+            <tr>
+                <th>Gravité</th>
+                <th>Impact Métier</th>
+                <th>Occurrences</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="badge bg-red">Banqueroute</span></td>
+                <td>Failles fatales. Compromission immédiate du système (ex: vol de base de données).</td>
+                <td><strong>{{ report.scoring_anssi.get('Critique', [])|length }}</strong></td>
+            </tr>
+            <tr>
+                <td><span class="badge bg-orange">Pari Risqué</span></td>
+                <td>Dangers sérieux. Faiblesses structurelles majeures exposant l'infrastructure.</td>
+                <td><strong>{{ report.scoring_anssi.get('Majeur', [])|length }}</strong></td>
+            </tr>
+            <tr>
+                <td><span class="badge bg-blue">Coup de Bluff</span></td>
+                <td>Faiblesses visibles. Mauvaises configurations permettant une prise d'empreinte.</td>
+                <td><strong>{{ report.scoring_anssi.get('Important', [])|length }}</strong></td>
+            </tr>
+            <tr>
+                <td><span class="badge bg-green">Petite Fuite</span></td>
+                <td>Défauts d'hygiène numérique. Manque de durcissement (Hardening).</td>
+                <td><strong>{{ report.scoring_anssi.get('Mineur', [])|length }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2 class="section-title" style="margin-top: 40px;">Plan de Remédiation Technique Priorisé</h2>
+    
+    <div style="background-color: #f1f5f9; padding: 25px; border-radius: 8px; border-left: 6px solid {{ evaluation.color }}; margin-bottom: 30px;">
+        
+        {% set failles_list = report.scoring_anssi.get('Critique', []) + report.scoring_anssi.get('Majeur', []) + report.scoring_anssi.get('Important', []) + report.scoring_anssi.get('Mineur', []) %}
+        
+        {% set detect = {'ffuf': false, 'nmap': false, 'ssl': false, 'headers': false, 'outdated': false, 'config': false} %}
+        
+        {% for f in failles_list %}
+            {% if f.outil == 'FFUF' %}{% set _ = detect.update({'ffuf': true}) %}{% endif %}
+            {% if f.outil == 'Nmap' %}{% set _ = detect.update({'nmap': true}) %}{% endif %}
+            {% if f.outil == 'TestSSL' %}{% set _ = detect.update({'ssl': true}) %}{% endif %}
+            {% if 'header' in f.titre|lower %}{% set _ = detect.update({'headers': true}) %}{% endif %}
+            {% if 'outdated' in f.description|lower or 'version' in f.titre|lower %}{% set _ = detect.update({'outdated': true}) %}{% endif %}
+            {% if 'config' in f.titre|lower or 'robots' in f.titre|lower %}{% set _ = detect.update({'config': true}) %}{% endif %}
+        {% endfor %}
+
+        {% if failles_list|length == 0 %}
+            <p style="margin-top: 0; font-weight: bold; color: #10b981; font-size: 18px;">🎉 Félicitations, aucun plan d'urgence n'est requis.</p>
+            <p style="color: #334155; margin-bottom: 0;">Maintenez votre politique de sécurité actuelle et continuez d'effectuer des audits réguliers pour prévenir l'apparition de futures vulnérabilités Zero-Day.</p>
+        
+        {% else %}
+            <p style="margin-top: 0; font-weight: bold; color: #0f172a; font-size: 15px;">Voici les directives techniques strictes à appliquer sur vos infrastructures pour combler les failles découvertes :</p>
+            
+            <ul style="line-height: 1.6; color: #334155; margin-bottom: 0; padding-left: 20px; font-size: 13px;">
+                
+                {% if detect.ffuf %}
+                <li style="margin-bottom: 15px;">
+                    <strong style="color: #ef4444; font-size: 14px;">[URGENCE] Compromission d'identifiants / Fichiers sensibles exposés :</strong><br>
+                    Des informations critiques (ex: identifiants de base de données) sont accessibles publiquement. 
+                    <ul style="margin-top: 5px; color: #475569;">
+                        <li><strong>Action immédiate :</strong> Procédez instantanément à la rotation des mots de passe exposés.</li>
+                        <li><strong>Correction :</strong> Déplacez les fichiers d'environnement (`.env`, `config.bak`) en dehors du répertoire racine du serveur Web (`/var/www/html/`). Restreignez leurs permissions avec `chmod 600`.</li>
+                    </ul>
+                </li>
+                {% endif %}
+
+                {% if detect.nmap %}
+                <li style="margin-bottom: 15px;">
+                    <strong style="color: #f97316; font-size: 14px;">[RÉSEAU] Exposition de services d'administration (Ports ouverts) :</strong><br>
+                    Des ports sensibles (ex: SSH, BDD) ont été détectés comme ouverts sur l'Internet public.
+                    <ul style="margin-top: 5px; color: #475569;">
+                        <li><strong>Correction :</strong> Configurez votre pare-feu (ex: `ufw` ou `iptables`) pour bloquer l'accès à ces ports par défaut.</li>
+                        <li>N'autorisez les connexions SSH (Port 22) que via une liste blanche d'IP statiques (Whitelisting) ou un VPN d'entreprise. Désactivez l'authentification par mot de passe au profit de clés cryptographiques (`PasswordAuthentication no` dans `sshd_config`).</li>
+                    </ul>
+                </li>
+                {% endif %}
+
+                {% if detect.config or detect.outdated %}
+                <li style="margin-bottom: 15px;">
+                    <strong style="color: #f97316; font-size: 14px;">[SERVEUR] Défauts de configuration et Obsolescence :</strong><br>
+                    Le serveur divulgue sa version technique ou utilise des composants obsolètes.
+                    <ul style="margin-top: 5px; color: #475569;">
+                        <li><strong>Correction :</strong> Appliquez les derniers patchs de sécurité sur votre serveur Web et vos moteurs (PHP, Apache, Nginx).</li>
+                        <li>Masquez la signature du serveur en modifiant `ServerTokens Prod` et `ServerSignature Off` dans la configuration Apache, ou `server_tokens off;` sous Nginx.</li>
+                        <li>Supprimez ou protégez par mot de passe les répertoires listés dans le fichier `robots.txt`.</li>
+                    </ul>
+                </li>
+                {% endif %}
+
+                {% if detect.ssl %}
+                <li style="margin-bottom: 15px;">
+                    <strong style="color: #3b82f6; font-size: 14px;">[CRYPTOGRAPHIE] Certificats SSL/TLS Invalides ou Faibles :</strong><br>
+                    La chaîne de confiance cryptographique est brisée (certificat auto-signé, expiré ou Suites cryptographiques faibles).
+                    <ul style="margin-top: 5px; color: #475569;">
+                        <li><strong>Correction :</strong> Remplacez le certificat actuel par un certificat valide émis par une Autorité de Certification reconnue (ex: Let's Encrypt gratuit via Certbot).</li>
+                        <li>Forcez l'utilisation exclusive de TLS 1.2 et TLS 1.3. Désactivez formellement TLS 1.0, TLS 1.1 et les chiffrements obsolètes (RC4, 3DES).</li>
+                    </ul>
+                </li>
+                {% endif %}
+
+                {% if detect.headers %}
+                <li style="margin-bottom: 15px;">
+                    <strong style="color: #10b981; font-size: 14px;">[APPLICATIF] Absence d'en-têtes de sécurité Web :</strong><br>
+                    Votre application manque de protections contre les attaques clientes (XSS, Clickjacking).
+                    <ul style="margin-top: 5px; color: #475569;">
+                        <li><strong>Correction :</strong> Intégrez les directives suivantes dans votre `.htaccess` ou configuration serveur :</li>
+                        <li>`Strict-Transport-Security: max-age=31536000; includeSubDomains` (Force le HTTPS).</li>
+                        <li>`X-Content-Type-Options: nosniff` (Empêche le détournement de type MIME).</li>
+                        <li>`Content-Security-Policy` (Restreint le chargement de scripts malveillants).</li>
+                    </ul>
+                </li>
+                {% endif %}
+
+            </ul>
+        {% endif %}
+    </div>
+    <h2 class="section-title" style="page-break-before: always;">3. Détail Technique et Remédiation</h2>
+    
+    {% set toutes_les_failles = report.scoring_anssi.get('Critique', []) + report.scoring_anssi.get('Majeur', []) + report.scoring_anssi.get('Important', []) + report.scoring_anssi.get('Mineur', []) %}
+    
+    {% if toutes_les_failles|length == 0 %}
+        <p style="text-align:center; margin-top:50px; color:#10b981; font-weight:bold;">Aucune vulnérabilité n'a été détectée. Votre périmètre est sécurisé.</p>
+    {% else %}
+        
+        {% for faille in toutes_les_failles %}
+            {% set border_color = '#10b981' %}
+            {% if faille.impact == 'Critique' %}{% set border_color = '#ef4444' %}{% endif %}
+            {% if faille.impact == 'Elevé' %}{% set border_color = '#f97316' %}{% endif %}
+            {% if faille.impact == 'Important' %}{% set border_color = '#3b82f6' %}{% endif %}
+
+            <div class="vuln-block" style="border-left-color: {{ border_color }};">
+                <div class="vuln-header">
+                    <h3 class="vuln-title">{{ faille.titre }}</h3>
+                    <span class="vuln-tool"><i class="fas fa-search"></i> Détecté par : {{ faille.outil }}</span>
+                </div>
+                
+                <div class="vuln-section">
+                    <strong>Traduction Vulgarisée</strong>
+                    <p style="font-style: italic;">
+                        {% if faille.outil == 'Nmap' %}Une porte de votre système est déverrouillée et visible de l'extérieur. Un intrus pourrait y tester des clés.
+                        {% elif faille.outil == 'FFUF' %}ALERTE : Les documents secrets de votre coffre-fort sont abandonnés sur la voie publique !
+                        {% elif faille.outil == 'TestSSL' %}Le certificat de sécurité de votre site est invalide. Les données de vos visiteurs ne sont pas protégées.
+                        {% elif faille.outil == 'Nikto' and 'config' in faille.titre|lower %}Vos plans de construction ou fichiers de configuration sont exposés. C'est une mine d'or pour un pirate.
+                        {% elif faille.outil == 'Nikto' %}Il manque des boucliers de base sur la devanture de votre site web (En-têtes de sécurité manquants).
+                        {% elif faille.outil == 'Dig' %}L'adresse technique de votre serveur est répertoriée.
+                        {% else %}Une anomalie a été repérée dans les rouages de votre système.{% endif %}
+                    </p>
+                </div>
+
+                <div class="vuln-section">
+                    <strong>Preuve Technique (Log brut)</strong>
+                    <div class="tech-log">{{ faille.description }}</div>
+                </div>
+
+                <div class="vuln-section">
+                    <strong>Plan d'Action (Remédiation)</strong>
+                    <p>👉 {{ faille.solution }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+</body>
+</html>
