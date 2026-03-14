@@ -1,8 +1,4 @@
-<div align="center">
 
-
-
-```text
 
 &#x20;██████╗██╗   ██╗██████╗ ███████╗██████╗ ███████╗███████╗███╗   ██╗████████╗██╗███╗   ██╗███████╗██╗
 
@@ -17,14 +13,8 @@
 &#x20;╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝
 
 
-
 🛡️ Plateforme d'Audit de Sécurité Web Automatisé (SaaS)
-
 Le contrôle technique de votre site internet, pour démocratiser la sécurité web.
-
-
-
-</div>
 
 
 
