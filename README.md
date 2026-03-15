@@ -39,3 +39,4 @@ Notre objectif est de démocratiser la cybersécurité pour les non-experts. La 
 
 ## 🚀 Installation & Lancement (Environnement de Dév)
 *(Les instructions de lancement Docker et Flask seront documentées ici lors de la phase de déploiement).*
+*Dans le fichier Manuel_Installation.md*
