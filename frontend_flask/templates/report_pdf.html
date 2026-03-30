@@ -50,6 +50,9 @@
         .vuln-section strong { display: block; font-size: 13px; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
         .vuln-section p { margin: 0; font-size: 14px; color: #334155; }
         .tech-log { font-family: "Courier New", Courier, monospace; background-color: #1e293b; color: #e2e8f0; padding: 10px; font-size: 12px; border-radius: 4px; overflow-wrap: break-word; }
+        .remediation-block { background-color: #f0fdf4; border: 1px solid #86efac; border-left: 4px solid #16a34a; border-radius: 6px; padding: 14px 16px; margin-top: 5px; }
+        .remediation-block pre { font-family: "Courier New", Courier, monospace; font-size: 11.5px; color: #166534; white-space: pre-wrap; word-break: break-word; margin: 0; line-height: 1.7; }
+        .remediation-title { font-size: 12px; font-weight: bold; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
     </style>
 </head>
 <body>
@@ -62,7 +65,7 @@
             <p><strong>Cible Auditée :</strong> {{ report.metadata.cible }}</p>
             <p><strong>Type d'audit :</strong> {{ report.metadata.statut }}</p>
             <p><strong>Total des vulnérabilités :</strong> {{ report.metadata.total_vulns }}</p>
-            <p><strong>Date de l'audit :</strong> Généré automatiquement à l'instant.</p>
+            <p><strong>Date de l'audit :</strong> {{ generation_date }}</p>
         </div>
     </div>
 
@@ -83,10 +86,6 @@
             <img src="{{ pie_chart_url }}" alt="Graphique des risques">
         </div>
 
-        <div class="chart-box">
-            <h3>Vulnérabilités par vecteurs d'analyse (Outils)</h3>
-            <img src="{{ bar_chart_url }}" alt="Graphique des outils">
-        </div>
     </div>
 
     <div class="page-break"></div>
@@ -153,59 +152,92 @@
             <ul style="line-height: 1.6; color: #334155; margin-bottom: 0; padding-left: 20px; font-size: 13px;">
                 
                 {% if detect.ffuf %}
-                <li style="margin-bottom: 15px;">
-                    <strong style="color: #ef4444; font-size: 14px;">[URGENCE] Compromission d'identifiants / Fichiers sensibles exposés :</strong><br>
-                    Des informations critiques (ex: identifiants de base de données) sont accessibles publiquement. 
-                    <ul style="margin-top: 5px; color: #475569;">
-                        <li><strong>Action immédiate :</strong> Procédez instantanément à la rotation des mots de passe exposés.</li>
-                        <li><strong>Correction :</strong> Déplacez les fichiers d'environnement (`.env`, `config.bak`) en dehors du répertoire racine du serveur Web (`/var/www/html/`). Restreignez leurs permissions avec `chmod 600`.</li>
+                <li style="margin-bottom: 20px;">
+                    <strong style="color: #ef4444; font-size: 14px;">🚨 [CRITIQUE — URGENCE] Fuite d'identifiants / Fichiers sensibles exposés (FFUF)</strong><br>
+                    Des identifiants ou fichiers de configuration critiques sont accessibles publiquement sur le serveur web.
+                    <ul style="margin-top: 8px; color: #475569; line-height: 1.8;">
+                        <li><strong>Dans l'heure :</strong> Changer le mot de passe MySQL exposé — <code>ALTER USER 'user'@'localhost' IDENTIFIED BY '[NouveauMDP]'; FLUSH PRIVILEGES;</code></li>
+                        <li><strong>Supprimer le fichier :</strong> <code>rm -f /var/www/html/config.bak &amp;&amp; find /var/www/html -name '*.bak' -o -name '*.env' | xargs rm -f</code></li>
+                        <li><strong>Déplacer hors du webroot :</strong> <code>mv /var/www/html/config* /etc/monapp/ &amp;&amp; chmod 600 /etc/monapp/*</code></li>
+                        <li><strong>Bloquer via .htaccess :</strong> <code>&lt;FilesMatch "\.(bak|env|sql|old|conf)$"&gt; Deny from all &lt;/FilesMatch&gt;</code></li>
+                        <li><strong>Audit d'exploitation :</strong> <code>grep 'config.bak' /var/log/apache2/access.log | wc -l</code> — Si accès détectés, isoler le serveur et révoquer toutes les sessions actives.</li>
+                        <li><strong>Prévention CI/CD :</strong> Ajouter <code>*.bak, *.env</code> au <code>.gitignore</code> et intégrer FFUF dans le pipeline.</li>
                     </ul>
                 </li>
                 {% endif %}
 
                 {% if detect.nmap %}
-                <li style="margin-bottom: 15px;">
-                    <strong style="color: #f97316; font-size: 14px;">[RÉSEAU] Exposition de services d'administration (Ports ouverts) :</strong><br>
-                    Des ports sensibles (ex: SSH, BDD) ont été détectés comme ouverts sur l'Internet public.
-                    <ul style="margin-top: 5px; color: #475569;">
-                        <li><strong>Correction :</strong> Configurez votre pare-feu (ex: `ufw` ou `iptables`) pour bloquer l'accès à ces ports par défaut.</li>
-                        <li>N'autorisez les connexions SSH (Port 22) que via une liste blanche d'IP statiques (Whitelisting) ou un VPN d'entreprise. Désactivez l'authentification par mot de passe au profit de clés cryptographiques (`PasswordAuthentication no` dans `sshd_config`).</li>
+                <li style="margin-bottom: 20px;">
+                    <strong style="color: #f97316; font-size: 14px;">🔓 [RÉSEAU] Ports sensibles exposés sur Internet (Nmap)</strong><br>
+                    Des ports d'administration (SSH, MySQL, RDP) sont accessibles directement depuis l'Internet public.
+                    <ul style="margin-top: 8px; color: #475569; line-height: 1.8;">
+                        <li><strong>Pare-feu (par défaut DENY) :</strong> <code>ufw default deny incoming &amp;&amp; ufw allow from [IP_ADMIN] to any port [PORT]</code></li>
+                        <li><strong>SSH (port 22) :</strong> <code>PasswordAuthentication no</code> + <code>PermitRootLogin no</code> dans <code>/etc/ssh/sshd_config</code>. Clés Ed25519 uniquement : <code>ssh-keygen -t ed25519</code></li>
+                        <li><strong>Anti-bruteforce SSH :</strong> <code>apt install fail2ban</code> — configurer <code>maxretry=3, bantime=86400</code> dans <code>/etc/fail2ban/jail.local</code></li>
+                        <li><strong>MySQL (port 3306) :</strong> Lier à localhost uniquement — <code>bind-address = 127.0.0.1</code> dans <code>/etc/mysql/mysql.conf.d/mysqld.cnf</code>. Accès distant via tunnel SSH uniquement.</li>
+                        <li><strong>Vérifier les logs :</strong> <code>tail -f /var/log/auth.log | grep 'Failed password'</code></li>
                     </ul>
                 </li>
                 {% endif %}
 
                 {% if detect.config or detect.outdated %}
-                <li style="margin-bottom: 15px;">
-                    <strong style="color: #f97316; font-size: 14px;">[SERVEUR] Défauts de configuration et Obsolescence :</strong><br>
-                    Le serveur divulgue sa version technique ou utilise des composants obsolètes.
-                    <ul style="margin-top: 5px; color: #475569;">
-                        <li><strong>Correction :</strong> Appliquez les derniers patchs de sécurité sur votre serveur Web et vos moteurs (PHP, Apache, Nginx).</li>
-                        <li>Masquez la signature du serveur en modifiant `ServerTokens Prod` et `ServerSignature Off` dans la configuration Apache, ou `server_tokens off;` sous Nginx.</li>
-                        <li>Supprimez ou protégez par mot de passe les répertoires listés dans le fichier `robots.txt`.</li>
+                <li style="margin-bottom: 20px;">
+                    <strong style="color: #f97316; font-size: 14px;">⚙️ [SERVEUR] Mauvaises configurations et composants obsolètes (Nikto)</strong><br>
+                    Le serveur divulgue sa version technique ou présente des défauts de durcissement.
+                    <ul style="margin-top: 8px; color: #475569; line-height: 1.8;">
+                        <li><strong>Masquer la version Apache :</strong> <code>ServerTokens Prod</code> + <code>ServerSignature Off</code> dans <code>/etc/apache2/conf-available/security.conf</code></li>
+                        <li><strong>Masquer la version Nginx :</strong> <code>server_tokens off;</code> dans le bloc <code>http {}</code> de <code>nginx.conf</code></li>
+                        <li><strong>Mettre à jour :</strong> <code>apt update &amp;&amp; apt upgrade apache2 nginx php -y</code></li>
+                        <li><strong>Désactiver les modules inutiles :</strong> <code>a2dismod autoindex status info</code></li>
+                        <li><strong>Interdire la navigation dans les répertoires :</strong> <code>Options -Indexes</code> dans <code>.htaccess</code></li>
+                        <li><strong>robots.txt :</strong> Ne jamais y lister des répertoires confidentiels. Protéger chaque répertoire mentionné avec un contrôle d'accès IP.</li>
                     </ul>
                 </li>
                 {% endif %}
 
                 {% if detect.ssl %}
-                <li style="margin-bottom: 15px;">
-                    <strong style="color: #3b82f6; font-size: 14px;">[CRYPTOGRAPHIE] Certificats SSL/TLS Invalides ou Faibles :</strong><br>
-                    La chaîne de confiance cryptographique est brisée (certificat auto-signé, expiré ou Suites cryptographiques faibles).
-                    <ul style="margin-top: 5px; color: #475569;">
-                        <li><strong>Correction :</strong> Remplacez le certificat actuel par un certificat valide émis par une Autorité de Certification reconnue (ex: Let's Encrypt gratuit via Certbot).</li>
-                        <li>Forcez l'utilisation exclusive de TLS 1.2 et TLS 1.3. Désactivez formellement TLS 1.0, TLS 1.1 et les chiffrements obsolètes (RC4, 3DES).</li>
+                <li style="margin-bottom: 20px;">
+                    <strong style="color: #3b82f6; font-size: 14px;">🔒 [CRYPTOGRAPHIE] Certificat SSL/TLS invalide ou protocoles obsolètes (TestSSL)</strong><br>
+                    La chaîne de confiance TLS est brisée ou des protocoles/ciphers faibles sont activés.
+                    <ul style="margin-top: 8px; color: #475569; line-height: 1.8;">
+                        <li><strong>Let's Encrypt (gratuit) :</strong> <code>apt install certbot python3-certbot-apache &amp;&amp; certbot --apache -d [domaine]</code></li>
+                        <li><strong>Renouvellement auto :</strong> <code>echo "0 3 * * * certbot renew --quiet" | crontab -</code></li>
+                        <li><strong>Désactiver TLS 1.0/1.1 :</strong> <code>SSLProtocol -all +TLSv1.2 +TLSv1.3</code> (Apache) / <code>ssl_protocols TLSv1.2 TLSv1.3;</code> (Nginx)</li>
+                        <li><strong>Supprimer les ciphers faibles :</strong> <code>SSLCipherSuite HIGH:!aNULL:!MD5:!3DES:!RC4:!EXP</code></li>
+                        <li><strong>Activer HSTS :</strong> <code>Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"</code></li>
+                        <li><strong>Valider :</strong> <code>ssllabs.com/ssltest/</code> — Score cible : <strong>A+</strong></li>
                     </ul>
                 </li>
                 {% endif %}
 
                 {% if detect.headers %}
-                <li style="margin-bottom: 15px;">
-                    <strong style="color: #10b981; font-size: 14px;">[APPLICATIF] Absence d'en-têtes de sécurité Web :</strong><br>
-                    Votre application manque de protections contre les attaques clientes (XSS, Clickjacking).
-                    <ul style="margin-top: 5px; color: #475569;">
-                        <li><strong>Correction :</strong> Intégrez les directives suivantes dans votre `.htaccess` ou configuration serveur :</li>
-                        <li>`Strict-Transport-Security: max-age=31536000; includeSubDomains` (Force le HTTPS).</li>
-                        <li>`X-Content-Type-Options: nosniff` (Empêche le détournement de type MIME).</li>
-                        <li>`Content-Security-Policy` (Restreint le chargement de scripts malveillants).</li>
+                <li style="margin-bottom: 20px;">
+                    <strong style="color: #10b981; font-size: 14px;">🛡️ [APPLICATIF] En-têtes de sécurité HTTP manquants (Nikto / ZAP)</strong><br>
+                    L'application est vulnérable aux attaques XSS, Clickjacking et autres attaques côté client.
+                    <ul style="margin-top: 8px; color: #475569; line-height: 1.8;">
+                        <li><strong>Activer le module :</strong> <code>a2enmod headers &amp;&amp; systemctl restart apache2</code></li>
+                        <li><strong>X-Content-Type-Options :</strong> <code>Header always set X-Content-Type-Options "nosniff"</code></li>
+                        <li><strong>X-Frame-Options :</strong> <code>Header always set X-Frame-Options "SAMEORIGIN"</code></li>
+                        <li><strong>XSS Protection :</strong> <code>Header always set X-XSS-Protection "1; mode=block"</code></li>
+                        <li><strong>Referrer-Policy :</strong> <code>Header always set Referrer-Policy "strict-origin-when-cross-origin"</code></li>
+                        <li><strong>Content-Security-Policy :</strong> <code>Header always set Content-Security-Policy "default-src 'self'; script-src 'self'"</code></li>
+                        <li><strong>Vérifier :</strong> <code>curl -I https://[domaine]</code> — Score cible sur <code>securityheaders.com</code> : <strong>A+</strong></li>
+                    </ul>
+                </li>
+                {% endif %}
+
+                {% set has_zap = report.scoring_anssi.get('Critique', [])|selectattr('outil', 'equalto', 'OWASP ZAP')|list|length > 0 or report.scoring_anssi.get('Majeur', [])|selectattr('outil', 'equalto', 'OWASP ZAP')|list|length > 0 %}
+                {% if has_zap %}
+                <li style="margin-bottom: 20px;">
+                    <strong style="color: #8b5cf6; font-size: 14px;">🕸️ [APPLICATIF WEB] Vulnérabilités détectées par OWASP ZAP</strong><br>
+                    Des failles applicatives actives ont été confirmées par l'attaque automatisée ZAP.
+                    <ul style="margin-top: 8px; color: #475569; line-height: 1.8;">
+                        <li><strong>[SQL Injection] :</strong> Utiliser des requêtes préparées — <code>$pdo->prepare("SELECT * FROM users WHERE id = ?")</code> — jamais de concaténation.</li>
+                        <li><strong>[XSS] :</strong> Encoder toutes les sorties — <code>htmlspecialchars($var, ENT_QUOTES, 'UTF-8')</code>. Implémenter un CSP strict.</li>
+                        <li><strong>[CSRF] :</strong> Ajouter un token CSRF sur chaque formulaire POST. Valider côté serveur à chaque requête.</li>
+                        <li><strong>[Auth faible] :</strong> Sessions avec <code>HttpOnly</code> + <code>Secure</code> + <code>SameSite=Strict</code>. Implémenter le MFA.</li>
+                        <li><strong>[Exposition info] :</strong> Désactiver <code>display_errors</code> en production. Logger les erreurs dans un fichier privé.</li>
+                        <li><strong>Régression :</strong> Réintégrer ZAP dans le pipeline CI/CD et relancer après chaque correctif.</li>
                     </ul>
                 </li>
                 {% endif %}
@@ -253,7 +285,10 @@
 
                 <div class="vuln-section">
                     <strong>Plan d'Action (Remédiation)</strong>
-                    <p>👉 {{ faille.solution }}</p>
+                    <div class="remediation-block">
+                        <div class="remediation-title">▶ Instructions de correction</div>
+                        <pre>{{ faille.solution }}</pre>
+                    </div>
                 </div>
             </div>
         {% endfor %}

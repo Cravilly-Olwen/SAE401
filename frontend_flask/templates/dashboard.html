@@ -98,28 +98,37 @@
         <div class="text-center mb-16">
             <h2 class="text-4xl font-instrument text-white">Détail de votre main</h2>
             <p class="text-gray-400 mt-2">Survolez les cartes pour découvrir les vulnérabilités trouvées.</p>
+            <button onclick="toggleAllCards()" id="flip-all-btn"
+                class="mt-6 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white py-2 px-6 rounded-lg font-bold text-sm transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] tracking-widest uppercase">
+                <i class="fas fa-sync-alt"></i>&nbsp; <span id="flip-all-label">Retourner toutes les cartes</span>
+            </button>
         </div>
 
-        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 px-8 pb-32">
+        <div id="cards-grid" class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 px-8 pb-32">
             
             {% set famille_mapping = {'FFUF': 'pique', 'OWASP ZAP': 'pique', 'Nmap': 'trefle', 'Nikto': 'carreau', 'TestSSL': 'carreau', 'Dig': 'coeur'} %}
             {% set valeur_mapping = {'Critique': 'as', 'Majeur': 'roi', 'Important': 'valet', 'Mineur': '8'} %}
+
+            {% set famille_border = {'pique': 'border-red-600/60', 'trefle': 'border-blue-400/60', 'carreau': 'border-orange-400/60', 'coeur': 'border-green-400/60'} %}
+            {% set famille_dos = {'pique': 'assets/dos_pique.png', 'trefle': 'assets/dos_trefle.png', 'carreau': 'assets/dos_carreau.png', 'coeur': 'assets/dos_coeur.png'} %}
 
             {% for gravite, failles in report.scoring_anssi.items() %}
                 {% for faille in failles %}
                     {% set famille = famille_mapping.get(faille.outil, 'coeur') %}
                     {% set valeur = valeur_mapping.get(gravite, '8') %}
                     {% set image_carte = 'assets/' ~ valeur ~ '_de_' ~ famille ~ '.png' %}
+                    {% set border_cls = famille_border.get(famille, 'border-blue-500/60') %}
+                    {% set dos_img = famille_dos.get(famille, 'assets/card-front.png') %}
 
                     <div class="grid-carte-container">
                         <div class="grid-carte-inner">
                             <div class="grid-face grid-dos">
-                                <img src="{{ url_for('static', filename='assets/card-front.png') }}" class="w-full h-full object-cover border-4 border-blue-500/30 rounded-[0.8em]">
+                                <img src="{{ url_for('static', filename=dos_img) }}" onerror="this.src='{{ url_for('static', filename='assets/card-front.png') }}'" class="w-full h-full object-cover rounded-[0.8em]">
                             </div>
 
                             <div class="grid-face grid-avant rounded-[0.8em] overflow-hidden bg-black">
                                 <img src="{{ url_for('static', filename=image_carte) }}" onerror="this.src='{{ url_for('static', filename='assets/card-front.png') }}'" class="absolute inset-0 w-full h-full opacity-[0.85]">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/95 to-black/10 px-3 pb-3 pt-12 flex flex-col items-center text-center border-4 border-blue-900/50 rounded-[0.8em] overflow-y-auto carte-scroll">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/95 to-black/10 px-3 pb-3 pt-12 flex flex-col items-center text-center border-4 {{ border_cls }} rounded-[0.8em] overflow-y-auto carte-scroll">
                                     <div class="mt-auto"></div>
                                     <span class="px-2 py-1 text-[9px] font-black rounded border border-blue-500/50 text-blue-300 mt-2 mb-3 tracking-widest bg-black/60 shadow-[0_0_10px_rgba(59,130,246,0.3)]">
                                         CARTE {{ faille.outil|upper }}
@@ -221,17 +230,103 @@
         </div>
     </section>
 
+    <!-- ======================================================= -->
+    <!-- MODAL : SURVEILLANCE AUTOMATIQUE                        -->
+    <!-- ======================================================= -->
+    <div id="auto-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/75 backdrop-blur-sm" onclick="toggleAutoModal()"></div>
+
+        <div class="relative bg-[#060d1f] border border-blue-500/40 rounded-2xl p-8 w-full max-w-md shadow-[0_0_60px_rgba(59,130,246,0.25)] mx-4">
+            <button onclick="toggleAutoModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- En-tête -->
+            <div class="text-center mb-7">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/30 mb-4">
+                    <i class="fas fa-robot text-3xl text-blue-400 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]"></i>
+                </div>
+                <h3 class="text-2xl font-instrument text-white">Surveillance Automatique</h3>
+                <p class="text-gray-400 text-sm mt-1 italic">Recevez votre indice de vitalité sans lever le petit doigt.</p>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="space-y-4">
+
+                <div>
+                    <label class="block text-[11px] text-blue-300 font-bold uppercase tracking-widest mb-2">
+                        <i class="fas fa-at"></i>&nbsp; Votre Email
+                    </label>
+                    <input type="email" id="auto-email" placeholder="vous@exemple.com"
+                        class="w-full bg-black/60 border border-gray-700 rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-blue-300 font-bold uppercase tracking-widest mb-2">
+                        <i class="fas fa-calendar-alt"></i>&nbsp; Fréquence
+                    </label>
+                    <select id="auto-frequency"
+                        class="w-full bg-black/60 border border-gray-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition cursor-pointer">
+                        <option value="daily">Tous les jours</option>
+                        <option value="monday">Chaque Lundi</option>
+                        <option value="wednesday">Chaque Mercredi</option>
+                        <option value="friday">Chaque Vendredi</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-blue-300 font-bold uppercase tracking-widest mb-2">
+                        <i class="fas fa-clock"></i>&nbsp; Heure de Réception
+                    </label>
+                    <select id="auto-hour"
+                        class="w-full bg-black/60 border border-gray-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition cursor-pointer">
+                        {% for h in range(24) %}
+                        <option value="{{ h }}" {% if h == 8 %}selected{% endif %}>{{ "%02d"|format(h) }}:00</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Bouton s'abonner -->
+                <button onclick="subscribeAuto()" id="subscribe-btn"
+                    class="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white py-3 rounded-lg font-bold text-sm transition-all shadow-[0_0_20px_rgba(59,130,246,0.4)] mt-1">
+                    <i class="fas fa-bell"></i>&nbsp; ACTIVER LA SURVEILLANCE
+                </button>
+
+                <!-- Message de statut -->
+                <div id="auto-status" class="hidden text-center text-sm font-bold py-2 px-4 rounded-lg border"></div>
+
+                <!-- Désabonnement -->
+                <div class="border-t border-gray-800 pt-4 text-center">
+                    <button onclick="unsubscribeAuto()"
+                        class="text-gray-600 hover:text-red-400 text-xs transition-colors">
+                        <i class="fas fa-bell-slash"></i>&nbsp; Se désabonner de la surveillance automatique
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- BARRE DU BAS                                            -->
+    <!-- ======================================================= -->
     <div class="fixed bottom-0 left-0 w-full bg-[#0a192f]/90 backdrop-blur-md border-t border-blue-500/20 p-4 z-50">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
             <p class="text-blue-400 text-sm font-instrument italic">CyberSentinel - L'analyse de l'invisible.</p>
-            <div class="flex gap-4">
-                <a href="/" class="bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition text-sm font-bold shadow-lg">NOUVEAU TIRAGE</a>
-                <a href="/api/download-pdf" target="_blank" class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-500 transition text-sm font-bold shadow-[0_0_15px_rgba(59,130,246,0.5)]"><i class="fas fa-file-pdf"></i> TÉLÉCHARGER LE DOSSIER</a>
-                
-                <button onclick="toggleEmailForm()" class="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-500 transition text-sm font-bold shadow-[0_0_15px_rgba(147,51,234,0.5)]">
+            <div class="flex flex-wrap gap-3 justify-center">
+                <a href="/" class="bg-gray-800 text-white py-2 px-5 rounded-lg hover:bg-gray-700 transition text-sm font-bold shadow-lg">
+                    <i class="fas fa-redo"></i> NOUVEAU TIRAGE
+                </a>
+                <a href="/api/download-pdf" target="_blank" class="bg-blue-600 text-white py-2 px-5 rounded-lg hover:bg-blue-500 transition text-sm font-bold shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                    <i class="fas fa-file-pdf"></i> TÉLÉCHARGER LE DOSSIER
+                </a>
+                <button onclick="toggleEmailForm()" class="bg-purple-600 text-white py-2 px-5 rounded-lg hover:bg-purple-500 transition text-sm font-bold shadow-[0_0_15px_rgba(147,51,234,0.5)]">
                     <i class="fas fa-envelope"></i> RECEVOIR PAR MAIL
                 </button>
+                <button onclick="toggleAutoModal()" class="bg-emerald-600 text-white py-2 px-5 rounded-lg hover:bg-emerald-500 transition text-sm font-bold shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+                    <i class="fas fa-robot"></i> AUTOMATISER
+                </button>
 
+                <!-- Popover mail -->
                 <div id="email-form-container" class="hidden absolute bottom-20 right-4 bg-[#0a192f] p-4 border border-purple-500/50 rounded-lg shadow-2xl transition-all">
                     <p class="text-xs text-purple-300 mb-2 font-bold uppercase tracking-widest"><i class="fas fa-at"></i> Adresse de destination :</p>
                     <div class="flex gap-2">
@@ -242,10 +337,87 @@
                     </div>
                     <p id="email-status" class="text-xs font-bold mt-2 hidden"></p>
                 </div>
-
             </div>
         </div>
     </div>
+
+    <!-- Variable JS : cible de l'audit en cours -->
+    <script>
+        const AUDIT_TARGET = "{{ report.metadata.cible }}";
+
+        function toggleAllCards() {
+            const grid = document.getElementById('cards-grid');
+            const label = document.getElementById('flip-all-label');
+            const isFlipped = grid.classList.toggle('grid-all-flipped');
+            label.textContent = isFlipped ? 'Remettre les cartes' : 'Retourner toutes les cartes';
+        }
+
+        function toggleAutoModal() {
+            document.getElementById('auto-modal').classList.toggle('hidden');
+            document.getElementById('auto-status').classList.add('hidden');
+        }
+
+        function showAutoStatus(msg, type) {
+            const el = document.getElementById('auto-status');
+            el.className = 'text-center text-sm font-bold py-2 px-4 rounded-lg border';
+            if (type === 'success') {
+                el.classList.add('text-emerald-400', 'bg-emerald-900/20', 'border-emerald-500/30');
+            } else {
+                el.classList.add('text-red-400', 'bg-red-900/20', 'border-red-500/30');
+            }
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        async function subscribeAuto() {
+            const email     = document.getElementById('auto-email').value.trim();
+            const frequency = document.getElementById('auto-frequency').value;
+            const hour      = parseInt(document.getElementById('auto-hour').value);
+
+            if (!email) {
+                showAutoStatus('Veuillez saisir votre adresse email.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('subscribe-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp; Activation...';
+
+            try {
+                const res  = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, target: AUDIT_TARGET, frequency, hour })
+                });
+                const data = await res.json();
+                showAutoStatus(res.ok ? '✅ ' + data.message : '❌ ' + data.error, res.ok ? 'success' : 'error');
+            } catch(e) {
+                showAutoStatus('❌ Erreur de connexion au serveur.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bell"></i>&nbsp; ACTIVER LA SURVEILLANCE';
+            }
+        }
+
+        async function unsubscribeAuto() {
+            const email = document.getElementById('auto-email').value.trim();
+            if (!email) {
+                showAutoStatus('Veuillez saisir votre adresse email.', 'error');
+                return;
+            }
+            try {
+                const res  = await fetch('/api/unsubscribe', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, target: AUDIT_TARGET })
+                });
+                const data = await res.json();
+                showAutoStatus(res.ok ? '✅ Désabonnement confirmé.' : '❌ ' + data.error, res.ok ? 'success' : 'error');
+            } catch(e) {
+                showAutoStatus('❌ Erreur de connexion au serveur.', 'error');
+            }
+        }
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
