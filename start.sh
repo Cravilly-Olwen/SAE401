@@ -101,6 +101,11 @@ done
 print_ok "Site cible vulnérable → ${BOLD}https://127.0.0.1:8443${NC}  (SSH: 127.0.0.1:2222)"
 print_ok "OWASP ZAP prêt en arrière-plan."
 
+# Connexion explicite au réseau d'exécution Shuffle (DNS overlay)
+docker network connect --alias mon_labo_cyber shuffle_swarm_executions mon_labo_cyber 2>/dev/null || true
+docker network connect --alias zap-server shuffle_swarm_executions zap-server 2>/dev/null || true
+print_ok "Résolution DNS → ${BOLD}mon_labo_cyber${NC} visible sur le réseau d'exécution Shuffle."
+
 # ================================================================
 # ÉTAPE 3 — Flask (l'interface CyberSentinel)
 # ================================================================
