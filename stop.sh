@@ -17,14 +17,14 @@ if [ -f /tmp/wordlist-server.pid ]; then
 fi
 pkill -f "python3 -m http.server 8888" 2>/dev/null || true
 
-echo -e "  ${DIM}→ Arrêt du Laboratoire Cyber (dummy_site)...${NC}"
-cd "$ROOT_DIR/dummy_site"
+echo -e "  ${DIM}→ Arrêt du Laboratoire Cyber...${NC}"
+cd "$ROOT_DIR/lab"
 docker compose down --remove-orphans 2>&1 | grep -v "^$" | while IFS= read -r line; do
     echo -e "     ${DIM}${line}${NC}"
 done
 
 echo -e "  ${DIM}→ Arrêt de Shuffle (SOAR)...${NC}"
-cd "$ROOT_DIR/backend_orchestrator/Shuffle"
+cd "$ROOT_DIR/backend/Shuffle"
 docker compose down --remove-orphans 2>&1 | grep -v "^$" | while IFS= read -r line; do
     echo -e "     ${DIM}${line}${NC}"
 done

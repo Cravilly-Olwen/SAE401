@@ -42,7 +42,7 @@ print_banner
 # ÉTAPE 0 — Serveur de Wordlists (pour FFUF dans Shuffle)
 # ================================================================
 print_step 0 "Démarrage du serveur de Wordlists..."
-WORDLIST_DIR="$ROOT_DIR/backend_orchestrator/Shuffle/shuffle-files"
+WORDLIST_DIR="$ROOT_DIR/backend/Shuffle/shuffle-files"
 pkill -f "python3 -m http.server 8888" 2>/dev/null || true
 python3 -m http.server 8888 --directory "$WORDLIST_DIR" &>/dev/null &
 echo $! > /tmp/wordlist-server.pid
@@ -54,7 +54,7 @@ print_ok "Serveur de wordlists démarré sur le port ${BOLD}8888${NC}"
 print_step 1 "Démarrage de l'Orchestrateur Shuffle (SOAR)..."
 print_info "Lancement des conteneurs Shuffle en arrière-plan..."
 
-cd "$ROOT_DIR/backend_orchestrator/Shuffle"
+cd "$ROOT_DIR/backend/Shuffle"
 docker compose up -d 2>&1 | while IFS= read -r line; do
     echo -e "      ${DIM}${line}${NC}"
 done
@@ -69,7 +69,7 @@ while ! curl -sk --max-time 3 "https://localhost:3443" -o /dev/null 2>/dev/null;
     if [ $ELAPSED -ge $TIMEOUT ]; then
         print_err "Shuffle ne répond pas après ${TIMEOUT}s."
         echo -e "  ${YELLOW}Conseil :${NC} Vérifiez les logs avec :"
-        echo -e "  ${DIM}docker compose -f backend_orchestrator/Shuffle/docker-compose.yml logs --tail=30${NC}\n"
+        echo -e "  ${DIM}docker compose -f backend/Shuffle/docker-compose.yml logs --tail=30${NC}\n"
         exit 1
     fi
     printf "\r      ${YELLOW}⏳${NC}  %ds / ${TIMEOUT}s — en attente de https://localhost:3443 ..." "$ELAPSED"
@@ -83,7 +83,7 @@ DOCKER_GW=$(docker network inspect shuffle_shuffle --format '{{range .IPAM.Confi
 if [ -z "$DOCKER_GW" ]; then
     DOCKER_GW=$(hostname -I | awk '{print $1}')
 fi
-WORKFLOW_JSON="$ROOT_DIR/backend_orchestrator/Moteur_Audit_SAE401.json"
+WORKFLOW_JSON="$ROOT_DIR/backend/audit_workflow.json"
 sed -i "s|\"http://[0-9.]*:5000/api/report\"|\"http://${DOCKER_GW}:5000/api/report\"|g" "$WORKFLOW_JSON"
 print_ok "Callback Flask mis à jour → ${BOLD}http://${DOCKER_GW}:5000/api/report${NC}"
 
@@ -93,7 +93,7 @@ print_ok "Callback Flask mis à jour → ${BOLD}http://${DOCKER_GW}:5000/api/rep
 print_step 2 "Démarrage du Laboratoire Cyber (cible + OWASP ZAP)..."
 print_info "Connexion aux réseaux Shuffle (shuffle_shuffle, shuffle_swarm_executions)..."
 
-cd "$ROOT_DIR/dummy_site"
+cd "$ROOT_DIR/lab"
 docker compose up -d 2>&1 | while IFS= read -r line; do
     echo -e "      ${DIM}${line}${NC}"
 done
@@ -106,7 +106,7 @@ print_ok "OWASP ZAP prêt en arrière-plan."
 # ================================================================
 print_step 3 "Démarrage de l'Application Flask (CyberSentinel)..."
 
-cd "$ROOT_DIR/frontend_flask"
+cd "$ROOT_DIR/frontend"
 
 # Résumé final avant le démarrage
 echo -e ""
@@ -135,10 +135,10 @@ cleanup() {
     fi
 
     echo -e "  ${DIM}→ Arrêt du Laboratoire Cyber...${NC}"
-    cd "$ROOT_DIR/dummy_site" && docker compose down --remove-orphans 2>/dev/null || true
+    cd "$ROOT_DIR/lab" && docker compose down --remove-orphans 2>/dev/null || true
 
     echo -e "  ${DIM}→ Arrêt de Shuffle...${NC}"
-    cd "$ROOT_DIR/backend_orchestrator/Shuffle" && docker compose down --remove-orphans 2>/dev/null || true
+    cd "$ROOT_DIR/backend/Shuffle" && docker compose down --remove-orphans 2>/dev/null || true
 
     echo -e "  ${GREEN}✓  Tout est arrêté proprement.${NC}\n"
     exit 0

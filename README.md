@@ -1,33 +1,50 @@
-# CyberSentinel — Plateforme d'Audit de Cybersécurité Automatisée
+# CyberSentinel
 
-> **SAE 401** — BUT Réseaux & Télécommunications | Année 2025–2026
-> Plateforme SaaS d'audit de sécurité à 360°, orchestrée par SOAR, avec tableau de bord vulgarisé basé sur la métaphore du **Contrôle Technique Automobile**.
+**Plateforme SaaS d'audit de cybersécurité automatisé — SAE 401**
+BUT Réseaux & Télécommunications | 2025–2026
+
+CyberSentinel orchestre six outils de sécurité professionnels et restitue les résultats sous la forme d'un **tableau de bord interactif à thème jeu de cartes**. Chaque vulnérabilité détectée devient une carte à jouer à retourner. L'interface, appelée **"Le Tirage"**, s'inspire du vocabulaire du casino pour vulgariser les résultats techniques auprès de non-experts.
 
 ---
 
-## Table des matières
+## Sommaire
 
-1. [Présentation du projet](#1-présentation-du-projet)
+1. [Concept et thème](#1-concept-et-thème)
 2. [Fonctionnalités](#2-fonctionnalités)
 3. [Stack technique](#3-stack-technique)
 4. [Architecture du dépôt](#4-architecture-du-dépôt)
-5. [Structure détaillée des fichiers](#5-structure-détaillée-des-fichiers)
-6. [Installation et lancement](#6-installation-et-lancement)
-7. [Système de scoring ANSSI](#7-système-de-scoring-anssi)
-8. [Environnement de test](#8-environnement-de-test)
-9. [Documentation et livrables](#9-documentation-et-livrables)
+5. [Détail de chaque module](#5-détail-de-chaque-module)
+6. [Lancement du projet](#6-lancement-du-projet)
+7. [Système de scoring — La Main](#7-système-de-scoring--la-main)
+8. [Livrables et documents](#8-livrables-et-documents)
 
 ---
 
-## 1. Présentation du projet
+## 1. Concept et thème
 
-**CyberSentinel** est une application SaaS qui démocratise la cybersécurité pour les non-experts. Elle orchestre en arrière-plan six outils d'audit professionnels et restitue les résultats sous la forme d'un tableau de bord vulgarisé, inspiré du **Contrôle Technique Automobile** et des rapports SEO type WooRank.
+L'interface de résultats s'appelle **"Votre Tirage"**. Les résultats d'audit sont présentés comme une main de cartes à jouer à retourner.
 
-L'objectif est de permettre à n'importe quelle organisation, sans compétences techniques avancées, d'obtenir une vue claire et priorisée de sa posture de sécurité en quelques clics.
+### Les familles (suits) → catégories de vulnérabilités
 
-**Deux modes d'exécution :**
-- **Mode Simple** — Scan rapide de surface (Reconnaissance DNS, ports, TLS).
-- **Mode Avancé** — Analyse profonde avec fuzzing web et DAST (détection de SQLi, XSS, etc.).
+| Famille | Outil(s) associé(s) | Type de failles couvertes |
+|---|---|---|
+| **Pique** | FFUF, OWASP ZAP | Fuites de données, vulnérabilités critiques (SQLi, XSS…) |
+| **Trèfle** | Nmap | Portes d'accès ouvertes, services réseau exposés |
+| **Carreau** | Nikto, TestSSL | Défauts de configuration serveur, TLS faible |
+| **Cœur** | Dig | Hygiène web, fuites d'informations mineures (DNS) |
+
+### Les valeurs des cartes → niveaux de sévérité
+
+| Carte | Sévérité | Nom Casino | Description |
+|---|---|---|---|
+| **As** | Critique | Banqueroute | Faille fatale, exploitation immédiate possible |
+| **Roi** | Majeur | Pari Risqué | Danger sérieux, défenses menacées |
+| **Valet** | Important | Coup de Bluff | Faiblesse visible de l'extérieur |
+| **8** | Mineur | Petite Fuite | Petits réglages d'hygiène à effectuer |
+
+### La Roulette du Risque
+
+La page de résultats contient une **roulette de casino animée** qui visualise la répartition des risques détectés par catégorie (Banqueroute / Pari Risqué / Coup de Bluff / Petite Fuite).
 
 ---
 
@@ -35,48 +52,55 @@ L'objectif est de permettre à n'importe quelle organisation, sans compétences 
 
 | Fonctionnalité | Description |
 |---|---|
-| Audit 360° | Analyse du domaine, de l'hébergement serveur et de la couche applicative web |
-| Double mode | Mode Simple (surface) et Mode Avancé (fuzzing + DAST) |
-| Tableau de bord vulgarisé | Résultats traduits en langage clair via la métaphore automobile (ANSSI) |
-| Rapport PDF | Génération automatique d'un rapport complet au format PDF |
-| Envoi par e-mail | Distribution du rapport PDF directement par e-mail SMTP |
-| Surveillance continue | Abonnement à un audit quotidien automatisé (cron à 8h00) |
-| Alerte sur nouvelle faille | Notification par mail si une nouvelle vulnérabilité est détectée |
-| Éthique White Hat | Temporisation des requêtes intégrée (anti-DDoS involontaire) |
-| Environnement de test | Site vulnérable local pour valider chaque outil d'audit |
+| Audit 360° | Analyse DNS, ports réseau, TLS/HTTPS, configuration serveur, fuzzing web, DAST applicatif |
+| Mode Simple | Scan rapide : dig, Nmap, testssl.sh |
+| Mode Avancé | Analyse complète : + Nikto, FFUF, OWASP ZAP |
+| Le Tirage | Dashboard interactif — chaque vulnérabilité est une carte à retourner |
+| La Roulette du Risque | Roue de casino animée affichant la répartition des risques |
+| Rapport PDF | Génération d'un rapport complet A4 téléchargeable |
+| Envoi par e-mail | Rapport envoyé directement en pièce jointe par SMTP Gmail |
+| Surveillance automatique | Abonnement à des audits planifiés (fréquence + heure configurables) |
+| Alerte | Notification par mail si de nouvelles failles sont détectées |
+| White Hat | Temporisation intégrée entre FFUF et ZAP pour éviter tout DDoS involontaire |
 
 ---
 
 ## 3. Stack technique
 
-### Frontend
+### Frontend — Interface utilisateur
+
 | Technologie | Rôle |
 |---|---|
 | Python 3 + Flask | Serveur web, routing, logique métier |
-| Jinja2 | Moteur de templates HTML |
-| HTML / CSS / JavaScript | Interface utilisateur |
-| WeasyPrint / pdfkit | Génération de rapports PDF |
-| APScheduler | Planification des audits automatiques (cron) |
-| smtplib | Envoi des rapports par e-mail |
+| Jinja2 | Rendu des templates HTML |
+| Tailwind CSS | Styles de l'interface |
+| JavaScript vanilla | Animations, retournement des cartes, roulette, polling scan |
+| GSAP + ScrollTrigger | Animations de défilement du dashboard |
+| Lenis | Smooth scroll |
+| WeasyPrint | Génération PDF côté serveur |
+| APScheduler | Scheduler des audits automatiques |
+| smtplib | Envoi des rapports par e-mail (Gmail SMTP) |
 
-### Backend / Orchestration
+### Backend — Orchestration et moteur d'audit
+
 | Technologie | Rôle |
 |---|---|
-| Shuffle (SOAR) | Orchestrateur de workflows d'audit |
-| Go (Golang) | Moteur backend de Shuffle |
-| OpenSearch | Base de données des résultats et logs |
+| Shuffle (SOAR) | Orchestrateur de workflows d'audit open source |
+| Go (Golang) | Moteur interne de Shuffle |
+| OpenSearch | Base de données des workflows et résultats |
 | React.js | Interface d'administration Shuffle |
-| Docker / Docker Compose | Conteneurisation de tous les services |
+| Docker + Docker Compose | Conteneurisation de tous les services |
 
-### Outils d'audit intégrés (6)
-| Outil | Catégorie | Fonction |
+### Outils d'audit intégrés
+
+| Outil | Phase | Famille de cartes |
 |---|---|---|
-| `dig` | Reconnaissance | Analyse DNS, zone transfer, MX, NS |
-| `Nmap` | Reconnaissance | Scan de ports, détection de services et OS |
-| `testssl.sh` | Cryptographie | Analyse TLS/HTTPS, certificats, chiffrements |
-| `Nikto` | Configuration serveur | Fichiers dangereux, headers manquants, versions exposées |
-| `FFUF` | Fuzzing web | Découverte de répertoires et fichiers cachés |
-| `OWASP ZAP` | DAST | Détection active de SQLi, XSS, CSRF et autres failles applicatives |
+| `dig` | Reconnaissance DNS | Cœur |
+| `Nmap` | Scan de ports et services | Trèfle |
+| `testssl.sh` | Analyse cryptographique TLS/HTTPS | Carreau |
+| `Nikto` | Configuration serveur et fichiers exposés | Carreau |
+| `FFUF` | Fuzzing de répertoires et fichiers cachés | Pique |
+| `OWASP ZAP` | DAST — SQLi, XSS, CSRF | Pique |
 
 ---
 
@@ -85,286 +109,258 @@ L'objectif est de permettre à n'importe quelle organisation, sans compétences 
 ```
 SAE401/
 │
-├── frontend_flask/          # Interface web Flask (port 5000)
-├── backend_orchestrator/    # Moteur d'audit Shuffle SOAR (port 3443)
-├── dummy_site/              # Site web vulnérable pour les tests (port 8443)
-├── docs/                    # Documentation technique du projet
+├── frontend/                            # Interface web Flask — Le Tirage
+├── backend/                             # Moteur d'audit Shuffle SOAR
+├── lab/                                 # Site vulnérable pour les tests
+├── docs/                                # Documentation du projet
 │
-├── start.sh                 # Script de démarrage global (tous les services)
-├── stop.sh                  # Script d'arrêt global
-├── README.md                # Ce fichier
+├── start.sh                             # Démarre tous les services
+├── stop.sh                              # Arrête tous les services
+├── README.md                            # Ce fichier
 │
-├── SAE401.pdf                               # Cahier des charges SAE
-├── Rapport_Technique_CyberSentinel_2026.pdf # Rapport de conception technique
-├── Rapport_CyberSentinel_Complet_modeAvancer.pdf  # Rapport audit mode avancé
-├── Rapport_CyberSentinel_Complet-modeSimple.pdf   # Rapport audit mode simple
-└── CYBERSENTINEL_EtudesdeMarches.pdf        # Étude de marché
+├── SAE401_Cahier_des_Charges.pdf        # Cahier des charges officiel
+├── CyberSentinel_Rapport_Technique_2026.pdf   # Rapport de conception
+├── CyberSentinel_Rapport_Mode_Avance.pdf      # Rapport audit mode avancé
+├── CyberSentinel_Rapport_Mode_Simple.pdf      # Rapport audit mode simple
+└── CyberSentinel_Etude_de_Marche.pdf          # Étude de marché
 ```
 
-**Ports exposés :**
+### Ports utilisés
 
-| Service | Port | Protocole |
+| Service | Port | URL d'accès |
 |---|---|---|
-| Flask Frontend | 5000 | HTTP |
-| Shuffle SOAR | 3443 | HTTPS |
-| Dummy Site (lab) | 8443 | HTTPS |
-| Wordlist HTTP Server | 8888 | HTTP |
+| Flask — Interface CyberSentinel | 5000 | http://localhost:5000 |
+| Shuffle SOAR | 3443 | https://localhost:3443 |
+| Lab (site de test vulnérable) | 8443 | https://127.0.0.1:8443 |
+| OWASP ZAP (proxy interne) | 8080 | Interne Docker |
+| Serveur de wordlists FFUF | 8888 | Interne |
 
 ---
 
-## 5. Structure détaillée des fichiers
+## 5. Détail de chaque module
 
-### `/frontend_flask/` — Interface utilisateur
+### `frontend/` — Interface utilisateur (Flask)
 
 ```
-frontend_flask/
+frontend/
 │
 ├── app.py                        # Application Flask principale
-│   │                               - Routes HTTP (/, /audit, /results, /subscribe)
-│   │                               - Génération PDF (WeasyPrint)
-│   │                               - Envoi email (smtplib / SMTP Gmail)
-│   │                               - Scheduler APScheduler (cron 8h00)
-│   │                               - Appels webhook vers Shuffle
+│   │                               Routes exposées :
+│   │                                 GET  /                  → Page d'accueil
+│   │                                 POST /api/start-scan    → Déclenche l'audit via Shuffle
+│   │                                 POST /api/report        → Reçoit les résultats de Shuffle
+│   │                                 GET  /dashboard         → Affiche Le Tirage
+│   │                                 GET  /api/check-status  → Polling état du scan
+│   │                                 GET  /api/download-pdf  → Télécharge le rapport PDF
+│   │                                 POST /api/send-email    → Envoie le rapport par mail
+│   │                                 POST /api/subscribe     → Abonnement surveillance auto
+│   │                                 POST /api/unsubscribe   → Désabonnement
 │   │
-├── subscribers.json              # Base des abonnés aux audits automatiques
-│   │                               Format : [{"email": "...", "domain": "...", "last_score": ...}]
-│   │
+├── subscribers.json              # Abonnés aux audits automatiques
+│                                   Format : [{ email, target, frequency, hour }]
+│
 ├── templates/
-│   ├── index.html                # Page d'accueil — formulaire de saisie du domaine
-│   ├── dashboard.html            # Tableau de bord des résultats d'audit
-│   ├── report_pdf.html           # Template de génération du rapport PDF
-│   └── cg-lusion-cards/         # Composant carte interactive (animation CSS)
-│       └── ...
+│   ├── index.html                # Page d'accueil — saisie de la cible et choix du mode
+│   ├── dashboard.html            # "Le Tirage" — cartes + Roulette du Risque
+│   │                               + modal surveillance automatique + barre d'actions
+│   └── report_pdf.html           # Template du rapport PDF généré par WeasyPrint
 │
-├── static/
-│   ├── css/
-│   │   ├── styles.css            # Styles généraux
-│   │   ├── index.css             # Styles page d'accueil
-│   │   └── dashboard.css         # Styles tableau de bord
-│   ├── js/
-│   │   ├── script.js             # JavaScript global
-│   │   ├── index.js              # Logique page d'accueil
-│   │   └── dashboard.js          # Logique tableau de bord (graphiques, scores)
-│   └── assets/
-│       └── *.png                 # Images de cartes à jouer (UI)
-│
-└── README.md                     # Documentation du module frontend
+└── static/
+    ├── css/
+    │   ├── styles.css            # Styles globaux
+    │   ├── index.css             # Styles page d'accueil
+    │   └── dashboard.css         # Styles dashboard (cartes, animations, roulette)
+    ├── js/
+    │   ├── script.js             # JavaScript global
+    │   ├── index.js              # Polling du scan, barre de progression
+    │   └── dashboard.js          # Retournement cartes, roulette animée, envoi mail
+    └── assets/                   # Images des cartes à jouer
+        ├── card-front.png        # Dos de carte générique
+        ├── dos_pique.png         # Dos — famille Pique
+        ├── dos_trefle.png        # Dos — famille Trèfle
+        ├── dos_carreau.png       # Dos — famille Carreau
+        ├── dos_coeur.png         # Dos — famille Cœur
+        ├── as_de_pique.png       # As de Pique   (Critique / Banqueroute)
+        ├── as_de_trefle.png      # As de Trèfle  (Critique / Banqueroute)
+        ├── roi_de_pique.png      # Roi de Pique  (Majeur / Pari Risqué)
+        ├── roi_de_carreau.png    # Roi de Carreau (Majeur / Pari Risqué)
+        ├── valet_de_pique.png    # Valet de Pique  (Important / Coup de Bluff)
+        ├── valet_de_trefle.png   # Valet de Trèfle (Important / Coup de Bluff)
+        ├── 8_de_coeur.png        # 8 de Cœur    (Mineur / Petite Fuite)
+        ├── 8_de_carreau.png      # 8 de Carreau (Mineur / Petite Fuite)
+        ├── 8_de_trefle.png       # 8 de Trèfle  (Mineur / Petite Fuite)
+        └── 7_de_coeur.png        # 7 de Cœur    (Mineur / Petite Fuite)
 ```
 
 ---
 
-### `/backend_orchestrator/` — Moteur d'audit SOAR
+### `backend/` — Moteur d'audit SOAR
 
 ```
-backend_orchestrator/
+backend/
 │
-├── Moteur_Audit_SAE401.json      # Définition complète du workflow Shuffle
-│   │                               - 100+ nœuds d'exécution
-│   │                               - Parallélisation dig / Nmap / testssl.sh
-│   │                               - Séquençage Nikto → FFUF → OWASP ZAP
-│   │                               - Nœuds de délai (anti-DDoS)
-│   │                               - Parseurs JSON de normalisation des sorties
+├── audit_workflow.json           # Workflow Shuffle complet (100+ nœuds)
+│   │                               Phase 1 — Reconnaissance (exécution parallèle) :
+│   │                                 dig, Nmap, testssl.sh
+│   │                               Phase 2 — Vulnérabilités (exécution séquentielle) :
+│   │                                 Nikto → FFUF → [délai anti-DDoS] → OWASP ZAP
+│   │                               Parseurs JSON normalisant les sorties CLI brutes
+│   │                               Callback final vers POST /api/report sur Flask
 │   │
-├── README.md                     # Documentation de l'orchestrateur
+├── README.md                     # Documentation du module
 │
 └── Shuffle/                      # Plateforme SOAR Shuffle (open source)
-    │
-    ├── docker-compose.yml        # Composition Docker de tous les services Shuffle
+    ├── docker-compose.yml        # Composition Docker des services Shuffle
     ├── .env                      # Variables d'environnement Shuffle
     │
     ├── backend/                  # Moteur Go de Shuffle
     │   ├── Dockerfile
-    │   ├── build.sh
     │   └── go-app/
-    │       ├── main.go           # Point d'entrée principal (Go)
-    │       ├── walkoff.go        # Logique d'exécution des workflows
-    │       ├── docker.go         # Intégration Docker pour les apps
-    │       ├── main_test.go      # Tests unitaires Go
-    │       ├── go.mod            # Dépendances Go
+    │       ├── main.go           # Point d'entrée Go
+    │       ├── walkoff.go        # Exécution des workflows
+    │       ├── docker.go         # Intégration Docker
+    │       ├── main_test.go      # Tests Go
+    │       ├── go.mod / go.sum   # Dépendances Go
     │       └── app_gen/
     │           └── python-lib/
-    │               ├── generator.py      # Génération d'apps Python pour Shuffle
+    │               ├── generator.py       # Génération d'apps Python pour Shuffle
     │               └── requirements.txt
     │
     ├── frontend/                 # Interface d'administration Shuffle (React)
     │   ├── Dockerfile
-    │   ├── package.json          # Dépendances Node.js
+    │   ├── package.json
     │   └── src/
-    │       ├── components/       # Composants React réutilisables
+    │       ├── components/       # Composants React
     │       ├── views/            # Pages de l'interface admin
-    │       ├── css/              # Styles React
-    │       └── utils/            # Utilitaires JavaScript
+    │       └── utils/
     │
     ├── functions/
-    │   ├── onprem/
-    │   │   ├── orborus/          # Nœud d'exécution on-premise
-    │   │   │   ├── Dockerfile
-    │   │   │   └── proxy_server.py
-    │   │   └── worker/           # Worker d'exécution des actions
-    │   │       └── Dockerfile
-    │   └── kubernetes/           # Charts Helm pour déploiement K8s
+    │   └── onprem/
+    │       ├── orborus/          # Nœud d'exécution on-premise
+    │       └── worker/           # Worker Docker des actions
     │
-    └── tests/                    # Suite de tests Shuffle (25+ scripts)
-        ├── test_workflow.go
-        ├── test_execution.go
-        ├── test_files.go
-        ├── test_webhooks.go
-        └── ...
+    └── tests/                    # Tests Shuffle (25+ scripts)
 ```
 
 ---
 
-### `/dummy_site/` — Environnement de test vulnérable
+### `lab/` — Laboratoire de test vulnérable
 
 ```
-dummy_site/
+lab/
 │
-├── app.py                        # Application Flask intentionnellement vulnérable
-│   │                               VULNERABILITÉS SIMULÉES (à des fins pédagogiques) :
-│   │                               - Faux headers Apache 2.2.14 + PHP 5.3.3 (versions obsolètes)
-│   │                               - Absence de headers de sécurité (X-Frame-Options, etc.)
-│   │                               - robots.txt révélant /admin_portal, /config.bak, /backup.zip
-│   │                               - Endpoint /config.bak exposant de fausses credentials DB
-│   │                               - XSS via filtre | safe sur entrée utilisateur
-│   │                               - Certificat SSL auto-signé (détectable par testssl.sh)
+├── app.py                        # Site Flask intentionnellement vulnérable
+│   │                               Vulnérabilités simulées à des fins pédagogiques :
+│   │                                 - Faux headers Apache 2.2.14 + PHP 5.3.3
+│   │                                 - Headers de sécurité absents
+│   │                                 - robots.txt révélant /admin_portal, /config.bak
+│   │                                 - Endpoint /config.bak (fausses credentials DB)
+│   │                                 - XSS via filtre Jinja2 | safe non échappé
+│   │                                 - Certificat SSL auto-signé
 │   │
-├── Dockerfile                    # Image Docker du site vulnérable
-├── docker-compose.yml            # Composition Docker (port 8443)
-├── requirements.txt              # Dépendances Python (Flask, pyopenssl)
-└── README.md                     # Avertissement et documentation du lab
+├── Dockerfile                    # Image Docker du site de test
+├── docker-compose.yml            # Réseau isolé + OWASP ZAP intégré (port 8443)
+└── requirements.txt              # Flask, pyopenssl
 ```
 
-> **AVERTISSEMENT** : Ce site est conçu uniquement pour être utilisé comme cible locale dans le cadre de ce projet. Il ne doit jamais être exposé sur un réseau public.
+> Ce site ne doit être utilisé qu'en local. Il ne doit jamais être exposé sur un réseau public.
 
 ---
 
-### `/docs/` — Documentation
+### `docs/`
 
 ```
 docs/
-└── README.md                     # Index de la documentation du projet
+└── README.md                     # Index de la documentation
 ```
 
 ---
 
-### Fichiers racine
-
-| Fichier | Description |
-|---|---|
-| `start.sh` | Démarre tous les services dans l'ordre : Wordlist Server → Shuffle → Dummy Site → Flask |
-| `stop.sh` | Arrête proprement tous les conteneurs Docker et processus |
-| `SAE401.pdf` | Cahier des charges officiel de la SAE 401 |
-| `Rapport_Technique_CyberSentinel_2026.pdf` | Rapport de conception et d'architecture technique |
-| `Rapport_CyberSentinel_Complet_modeAvancer.pdf` | Rapport d'audit complet — Mode Avancé |
-| `Rapport_CyberSentinel_Complet-modeSimple.pdf` | Rapport d'audit complet — Mode Simple |
-| `CYBERSENTINEL_EtudesdeMarches.pdf` | Étude de marché CyberSentinel |
-| `Status parseur ANSSI.txt` | Notes de suivi sur le développement du parseur ANSSI |
-
----
-
-## 6. Installation et lancement
+## 6. Lancement du projet
 
 ### Prérequis
 
-- Docker & Docker Compose installés
-- Python 3.10+ avec `pip`
-- Git
-
-### Étape 1 — Cloner le dépôt
+- Docker et Docker Compose installés et démarrés
+- Python 3.10+ avec pip
+- Dépendances Python :
 
 ```bash
-git clone https://github.com/Cravilly-Olwen/SAE401.git
-cd SAE401
-git checkout Jeremy
+pip install flask requests weasyprint apscheduler urllib3
 ```
 
-### Étape 2 — Démarrer tous les services
+### Démarrer tous les services
 
 ```bash
-chmod +x start.sh stop.sh
+chmod +x start.sh
 ./start.sh
 ```
 
 Le script `start.sh` lance automatiquement dans l'ordre :
-1. **Serveur HTTP wordlists** (port 8888) — listes de mots pour FFUF
-2. **Shuffle SOAR** (port 3443) — orchestrateur d'audit
-3. **Dummy Site** (port 8443) — cible de test vulnérable
-4. **Flask Frontend** (port 5000) — interface utilisateur
 
-### Étape 3 — Accéder à l'application
+1. **Serveur de wordlists** (port 8888) — listes de mots pour FFUF
+2. **Shuffle SOAR** (port 3443) — attend la disponibilité avant de continuer
+3. **Lab + OWASP ZAP** (port 8443) — environnement de test vulnérable
+4. **Flask CyberSentinel** (port 5000) — au premier plan, logs visibles en direct
+
+`Ctrl+C` arrête proprement tous les services.
+
+### Importer le workflow dans Shuffle
+
+1. Ouvrir https://localhost:3443
+2. Aller dans **Workflows** → **Import**
+3. Sélectionner `backend/audit_workflow.json`
+
+### Accéder à l'application
 
 | Interface | URL |
 |---|---|
-| Application CyberSentinel | http://localhost:5000 |
-| Interface admin Shuffle | https://localhost:3443 |
-| Site de test vulnérable | https://localhost:8443 |
+| CyberSentinel — Le Tirage | http://localhost:5000 |
+| Admin Shuffle | https://localhost:3443 |
+| Lab — Site de test vulnérable | https://127.0.0.1:8443 |
 
-### Étape 4 — Importer le workflow Shuffle
+---
 
-1. Ouvrir https://localhost:3443
-2. Aller dans **Workflows** > **Import**
-3. Importer le fichier `backend_orchestrator/Moteur_Audit_SAE401.json`
+## 7. Système de scoring — La Main
 
-### Arrêt des services
+### Calcul du score de robustesse (sur 100)
 
-```bash
-./stop.sh
+```
+Score = 100 − (Critique × 25) − (Majeur × 15) − (Important × 5) − (Mineur × 1)
 ```
 
----
+### Notes et signification
 
-## 7. Système de scoring ANSSI
+| Note | Score | Signification |
+|---|---|---|
+| **A** | 90 – 100 | Excellent — Situation saine |
+| **B** | 70 – 89 | Bon — Quelques ajustements recommandés |
+| **C** | 50 – 69 | Moyen — Faiblesses importantes à corriger |
+| **D** | 20 – 49 | Dangereux — Intervention rapide nécessaire |
+| **F** | < 20 | Critique — Urgence absolue |
 
-CyberSentinel traduit les résultats techniques en **langage automobile** basé sur la matrice ANSSI :
+### Catégories de risque
 
-| Catégorie | Métaphore | Sévérité | Exemple |
-|---|---|---|---|
-| Critique | Freins coupés | Danger imminent | SQLi, fuite de credentials |
-| Majeur | Pneus lisses | Risque élevé | Certificat SSL obsolète, port critique ouvert |
-| Important | Anomalie carrosserie | Risque modéré | Version logicielle exposée |
-| Mineur | Entretien à prévoir | Risque faible | Header de sécurité manquant |
-| Quick Wins | Changement d'ampoule | Correction < 5 min | Ajout d'un header HTTP |
-
-**Score global (sur 100) :**
-
-| Note | Score | Couleur | Signification |
-|---|---|---|---|
-| A | 90–100 | Vert | Contrôle technique favorable |
-| B | 75–89 | Bleu | Quelques points à corriger |
-| C | 60–74 | Jaune | Contre-visite recommandée |
-| D | 40–59 | Orange | Contre-visite obligatoire |
-| F | < 40 | Rouge | Immobilisation |
+| Catégorie casino | Sévérité réelle | Carte associée |
+|---|---|---|
+| Banqueroute | Critique | As |
+| Pari Risqué | Majeur | Roi |
+| Coup de Bluff | Important | Valet |
+| Petite Fuite | Mineur | 8 |
 
 ---
 
-## 8. Environnement de test
+## 8. Livrables et documents
 
-Le dossier `dummy_site/` contient un site Flask **volontairement vulnérable** servant de laboratoire pour valider chaque outil d'audit intégré.
+Tous les documents sont disponibles à la racine du dépôt :
 
-**Vulnérabilités simulées :**
-- Headers HTTP trompeurs (Apache 2.2.14, PHP 5.3.3)
-- Absence de headers de sécurité
-- Fichiers sensibles indexés dans `robots.txt`
-- Endpoint exposant de fausses credentials base de données
-- Faille XSS via rendu non échappé
-- Certificat SSL auto-signé
-
-> Cet environnement doit rester **strictement local**. Il n'est pas conçu pour être exposé sur un réseau public.
-
----
-
-## 9. Documentation et livrables
-
-Tous les documents livrables sont disponibles à la racine du dépôt :
-
-| Document | Contenu |
+| Fichier | Contenu |
 |---|---|
-| `SAE401.pdf` | Cahier des charges et contraintes du projet |
-| `Rapport_Technique_CyberSentinel_2026.pdf` | Architecture technique complète, choix de conception |
-| `Rapport_CyberSentinel_Complet_modeAvancer.pdf` | Résultats et analyse d'un audit en Mode Avancé |
-| `Rapport_CyberSentinel_Complet-modeSimple.pdf` | Résultats et analyse d'un audit en Mode Simple |
-| `CYBERSENTINEL_EtudesdeMarches.pdf` | Positionnement marché et analyse concurrentielle |
+| `SAE401_Cahier_des_Charges.pdf` | Cahier des charges officiel de la SAE 401 |
+| `CyberSentinel_Rapport_Technique_2026.pdf` | Architecture technique, choix de conception, flux de données |
+| `CyberSentinel_Rapport_Mode_Avance.pdf` | Résultats d'un audit complet en Mode Avancé |
+| `CyberSentinel_Rapport_Mode_Simple.pdf` | Résultats d'un audit en Mode Simple |
+| `CyberSentinel_Etude_de_Marche.pdf` | Analyse de marché et positionnement concurrentiel |
 
 ---
 
-*Projet réalisé dans le cadre de la SAE 401 — BUT Réseaux & Télécommunications 2025–2026.*
+*SAE 401 — BUT Réseaux & Télécommunications 2025–2026*
